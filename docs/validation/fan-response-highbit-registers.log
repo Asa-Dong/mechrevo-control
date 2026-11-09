@@ -1,0 +1,10 @@
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x00
+mechrevo_table_backup: saved inactive table and flags
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x00
+mechrevo_response_test: original=0 candidate=131 readback=131
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x83
+mechrevo_response_test: restored raw=0
+mechrevo_response_test: original=0 candidate=134 readback=134
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x86
+mechrevo_response_test: restored raw=0
+mechrevo_table_backup: restored all 96 table bytes and control flags

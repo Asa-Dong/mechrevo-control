@@ -1,0 +1,4 @@
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x00
+mechrevo_response_test: original=0 candidate=6 readback=6
+mechrevo_probe: fan_switch_speed_candidate offset=0x0787 value=0x06
+mechrevo_response_test: restored raw=0

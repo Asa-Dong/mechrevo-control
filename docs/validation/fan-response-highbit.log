@@ -1,0 +1,31 @@
+START 0 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '40', 'fan1_input': '2333', 'fan2_percent': '25', 'fan2_input': '1568', 'temp1_input': '50000', 'last_error': '0'}
+{"raw": 0, "elapsed": 4.56, "mode": "office", "fan_control": "curve", "fan1_percent": "36", "fan1_input": "2105", "fan2_percent": "26", "fan2_input": "1568", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 6.87, "mode": "office", "fan_control": "curve", "fan1_percent": "40", "fan1_input": "2248", "fan2_percent": "30", "fan2_input": "1770", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 9.43, "mode": "office", "fan_control": "curve", "fan1_percent": "44", "fan1_input": "2504", "fan2_percent": "34", "fan2_input": "2067", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 11.75, "mode": "office", "fan_control": "curve", "fan1_percent": "48", "fan1_input": "2688", "fan2_percent": "38", "fan2_input": "2248", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 14.06, "mode": "office", "fan_control": "curve", "fan1_percent": "52", "fan1_input": "2933", "fan2_percent": "40", "fan2_input": "2453", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 16.36, "mode": "office", "fan_control": "curve", "fan1_percent": "56", "fan1_input": "3080", "fan2_percent": "40", "fan2_input": "2450", "temp1_input": "50000", "last_error": "0"}
+{"raw": 0, "elapsed": 18.66, "mode": "office", "fan_control": "curve", "fan1_percent": "60", "fan1_input": "3252", "fan2_percent": "40", "fan2_input": "2461", "temp1_input": "50000", "last_error": "0"}
+START 131 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '40', 'fan1_input': '2331', 'fan2_percent': '40', 'fan2_input': '2458', 'temp1_input': '49000', 'last_error': '0'}
+{"raw": 131, "elapsed": 4.6, "mode": "office", "fan_control": "curve", "fan1_percent": "36", "fan1_input": "2139", "fan2_percent": "37", "fan2_input": "2239", "temp1_input": "49000", "last_error": "0"}
+{"raw": 131, "elapsed": 6.9, "mode": "office", "fan_control": "curve", "fan1_percent": "41", "fan1_input": "2353", "fan2_percent": "40", "fan2_input": "2455", "temp1_input": "49000", "last_error": "0"}
+{"raw": 131, "elapsed": 9.2, "mode": "office", "fan_control": "curve", "fan1_percent": "44", "fan1_input": "2507", "fan2_percent": "40", "fan2_input": "2453", "temp1_input": "49000", "last_error": "0"}
+{"raw": 131, "elapsed": 11.52, "mode": "office", "fan_control": "curve", "fan1_percent": "48", "fan1_input": "2685", "fan2_percent": "40", "fan2_input": "2455", "temp1_input": "48000", "last_error": "0"}
+{"raw": 131, "elapsed": 13.82, "mode": "office", "fan_control": "curve", "fan1_percent": "52", "fan1_input": "2909", "fan2_percent": "40", "fan2_input": "2461", "temp1_input": "48000", "last_error": "0"}
+{"raw": 131, "elapsed": 16.13, "mode": "office", "fan_control": "curve", "fan1_percent": "56", "fan1_input": "3075", "fan2_percent": "40", "fan2_input": "2458", "temp1_input": "48000", "last_error": "0"}
+{"raw": 131, "elapsed": 18.45, "mode": "office", "fan_control": "curve", "fan1_percent": "60", "fan1_input": "3227", "fan2_percent": "40", "fan2_input": "2461", "temp1_input": "48000", "last_error": "0"}
+START 134 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '40', 'fan1_input': '2336', 'fan2_percent': '40', 'fan2_input': '2458', 'temp1_input': '46000', 'last_error': '0'}
+{"raw": 134, "elapsed": 4.43, "mode": "office", "fan_control": "curve", "fan1_percent": "38", "fan1_input": "2220", "fan2_percent": "38", "fan2_input": "2343", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 6.73, "mode": "office", "fan_control": "curve", "fan1_percent": "40", "fan1_input": "2308", "fan2_percent": "40", "fan2_input": "2425", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 9.03, "mode": "office", "fan_control": "curve", "fan1_percent": "42", "fan1_input": "2403", "fan2_percent": "40", "fan2_input": "2453", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 11.34, "mode": "office", "fan_control": "curve", "fan1_percent": "43", "fan1_input": "2481", "fan2_percent": "40", "fan2_input": "2455", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 13.64, "mode": "office", "fan_control": "curve", "fan1_percent": "45", "fan1_input": "2607", "fan2_percent": "40", "fan2_input": "2455", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 15.94, "mode": "office", "fan_control": "curve", "fan1_percent": "47", "fan1_input": "2685", "fan2_percent": "40", "fan2_input": "2450", "temp1_input": "46000", "last_error": "0"}
+{"raw": 134, "elapsed": 18.25, "mode": "office", "fan_control": "curve", "fan1_percent": "49", "fan1_input": "2785", "fan2_percent": "40", "fan2_input": "2461", "temp1_input": "45000", "last_error": "0"}
+{"raw": 134, "elapsed": 20.55, "mode": "office", "fan_control": "curve", "fan1_percent": "51", "fan1_input": "2898", "fan2_percent": "40", "fan2_input": "2450", "temp1_input": "45000", "last_error": "0"}
+{"raw": 134, "elapsed": 22.86, "mode": "office", "fan_control": "curve", "fan1_percent": "53", "fan1_input": "2970", "fan2_percent": "40", "fan2_input": "2447", "temp1_input": "45000", "last_error": "0"}
+{"raw": 134, "elapsed": 25.17, "mode": "office", "fan_control": "curve", "fan1_percent": "55", "fan1_input": "3049", "fan2_percent": "40", "fan2_input": "2455", "temp1_input": "45000", "last_error": "0"}
+{"raw": 134, "elapsed": 27.47, "mode": "office", "fan_control": "curve", "fan1_percent": "57", "fan1_input": "3134", "fan2_percent": "40", "fan2_input": "2453", "temp1_input": "45000", "last_error": "0"}
+{"raw": 134, "elapsed": 29.77, "mode": "office", "fan_control": "curve", "fan1_percent": "59", "fan1_input": "3252", "fan2_percent": "40", "fan2_input": "2453", "temp1_input": "45000", "last_error": "0"}
+PASS: all measurements completed
+RESTORED {'mode': 'office', 'fan_control': 'auto', 'control': 'firmware'}

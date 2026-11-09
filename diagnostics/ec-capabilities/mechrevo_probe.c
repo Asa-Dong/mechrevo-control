@@ -16,6 +16,11 @@ static const struct probe_register registers[] = {
     {0x0464, "main_fan_high"}, {0x0465, "main_fan_low"},
     {0x046c, "secondary_fan_high"}, {0x046d, "secondary_fan_low"},
     {0x043e, "cpu_temperature"},
+    {0x0787, "fan_switch_speed_candidate"},
+    {0x0726, "custom_profile_flags"},
+    {0x0f5d, "ramfan_status1_candidate"},
+    {0x0f5e, "ramfan_status2_candidate"},
+    {0x0f5f, "ramfan_control_candidate"},
 };
 static int __init probe_init(void)
 {
