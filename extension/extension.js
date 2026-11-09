@@ -12,6 +12,8 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 const NAME = 'io.github.mechrevo.Control1';
 const PATH = '/io/github/mechrevo/Control1';
+// Soften readouts and captions without dimming their interactive controls.
+const SECONDARY_TEXT_OPACITY = 205;
 
 export default class MechrevoControl extends Extension {
     enable() {
@@ -30,6 +32,8 @@ export default class MechrevoControl extends Extension {
         this._syncing = false;
         this._button = new PanelMenu.Button(0.0, 'Mechrevo Control');
         this._button.menu.setSourceAlignment(0.0);
+        // Reserve the expanded keyboard layout even when its rows are hidden.
+        this._button.menu.box.style = 'width: 320px;';
         this._label = new St.Label({text: '硬件 …', y_align: Clutter.ActorAlign.CENTER});
         this._button.add_child(this._label);
         Main.panel.addToStatusArea(this.uuid, this._button);
@@ -71,13 +75,16 @@ export default class MechrevoControl extends Extension {
     _row(text, menu = this._button.menu, position = undefined) {
         const row = new PopupMenu.PopupMenuItem(text, {reactive: false, can_focus: false});
         menu.addMenuItem(row, position);
+        // Use a readable secondary tone, not the theme's disabled-control color.
+        row.remove_style_pseudo_class('insensitive');
+        row.label.opacity = SECONDARY_TEXT_OPACITY;
         return row;
     }
 
     _choices(title, setting, choices) {
         // Keep actors alive while interacting; only update selection and sensitivity.
         const row = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false, activate: false});
-        row.add_child(new St.Label({text: title, x_expand: true, y_align: Clutter.ActorAlign.CENTER}));
+        row.add_child(new St.Label({text: title, opacity: SECONDARY_TEXT_OPACITY, x_expand: true, y_align: Clutter.ActorAlign.CENTER}));
         const box = new St.BoxLayout({style: 'spacing: 6px;'});
         for (const [value, label] of choices) {
             const button = new St.Button({
@@ -90,6 +97,7 @@ export default class MechrevoControl extends Extension {
         }
         row.add_child(box);
         this._button.menu.addMenuItem(row);
+        row.remove_style_pseudo_class('insensitive');
     }
 
     _sliderText(setting, n) {
@@ -99,14 +107,14 @@ export default class MechrevoControl extends Extension {
 
     _slider(title, setting, minimum, maximum, channel = null, menu = this._button.menu) {
         const row = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false, activate: false});
-        row.add_child(new St.Label({text: title, style: 'min-width: 72px;', y_align: Clutter.ActorAlign.CENTER}));
+        row.add_child(new St.Label({text: title, opacity: SECONDARY_TEXT_OPACITY, style: 'min-width: 72px;', y_align: Clutter.ActorAlign.CENTER}));
         const slider = new Slider.Slider(0);
         slider.style = 'min-width: 150px;';
         slider.accessible_name = title;
         row.add_child(slider);
         // Every slider uses the same columns, including room for '300 秒'.
         const valueStyle = 'width: 4em; text-align: right;';
-        const label = new St.Label({text: '-', style: valueStyle, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.END});
+        const label = new St.Label({text: '-', opacity: SECONDARY_TEXT_OPACITY, style: valueStyle, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.END});
         row.add_child(label);
         const entry = {row, slider, label, setting, minimum, maximum, channel, dirty: false, dragging: false};
         this._sliders.push(entry);
@@ -131,6 +139,7 @@ export default class MechrevoControl extends Extension {
             if (entry.dirty) this._scheduleSlider(entry, 0);
         });
         menu.addMenuItem(row);
+        row.remove_style_pseudo_class('insensitive');
     }
 
     _cancelSliderTimer(setting) {

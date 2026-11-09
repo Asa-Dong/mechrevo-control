@@ -172,6 +172,16 @@ export async function run() {
         if (!ext._curveInfo.visible || ext._sliders.some(e => e.setting.startsWith('fan') && e.row.visible))
             throw new Error('Curve layout still exposes manual sliders');
         await Scripting.sleep(150);
+        if (ext._button.menu.actor.width !== collapsedWidth)
+            throw new Error('Switching to curve mode changes popup width');
+        ext._keyboardMenu.setSubmenuShown(true);
+        await Scripting.sleep(300);
+        if (ext._button.menu.actor.width !== collapsedWidth)
+            throw new Error('Keyboard submenu changes curve popup width');
+        ext._keyboardMenu.setSubmenuShown(false);
+        await Scripting.sleep(300);
+        if (ext._button.menu.actor.width !== collapsedWidth)
+            throw new Error('Collapsing keyboard changes curve popup width');
         const curvePath = (GLib.getenv('MECHREVO_UI_SCREENSHOT') || '/tmp/mechrevo-menu-preview.png').replace('.png', '-curve.png');
         const curveStream = Gio.File.new_for_path(curvePath).replace(null, false, Gio.FileCreateFlags.NONE, null);
         await new Shell.Screenshot().screenshot(false, curveStream);
