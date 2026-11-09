@@ -75,6 +75,26 @@ export class CurveEditor {
                 });
             }
         }
+        const response = new Adw.PreferencesGroup({title: '风扇响应速度',
+            description: '每变化 0.5% 的等待时间，数值越小响应越快。关闭时使用固件默认响应。'});
+        page.add(response);
+        this.responseEnabled = new Adw.SwitchRow({title: '启用风扇转换灵敏度'});
+        response.add(this.responseEnabled);
+        const responseBox = new Gtk.Box({spacing: 12, margin_top: 8});
+        this.responseTime = new Gtk.Adjustment({lower: 1, upper: 127, step_increment: 1, page_increment: 10, value: 3});
+        this.responseScale = new Gtk.Scale({orientation: Gtk.Orientation.HORIZONTAL, adjustment: this.responseTime,
+            digits: 0, round_digits: 0, draw_value: false, hexpand: true});
+        this.responseLabel = new Gtk.Label({width_chars: 16, xalign: 1});
+        this.responseApply = new Gtk.Button({label: '应用响应速度'});
+        responseBox.append(this.responseScale);
+        responseBox.append(this.responseLabel);
+        response.add(responseBox);
+        response.add(this.responseApply);
+        this.responseEnabled.connect('notify::active', () => this.responseChanged());
+        this.responseTime.connect('value-changed', () => this.responseChanged());
+        this.responseApply.connect('clicked', () => this.applyResponse());
+        this.responseAvailable = false;
+        this.responseChanged();
         const actions = new Adw.PreferencesGroup({description: '每路 5 个温区，更高温度沿用末档值。0% 不保证停转，实际转速以读数为准。应用后切换到曲线模式，保存并在服务启动时恢复；可与三档性能模式同时使用；恢复默认值会退出曲线。'});
         page.add(actions);
         const buttons = new Gtk.Box({spacing: 10, homogeneous: true});
@@ -101,6 +121,9 @@ export class CurveEditor {
     }
     sync() {
         if (!this.applyButton) return;
+        this.responseEnabled.sensitive = this.responseAvailable && !this.busy;
+        this.responseScale.sensitive = this.responseAvailable && !this.busy && this.responseEnabled.active;
+        this.responseApply.sensitive = this.responseAvailable && !this.busy;
         this.charts.forEach(chart => { chart.sensitive = this.ready && !this.busy; });
         this.applyButton.sensitive = this.ready && !this.busy && validCurve(this.values());
         this.defaults.sensitive = this.ready && !this.busy;
@@ -110,8 +133,9 @@ export class CurveEditor {
         const result = await this.rpc('GetStatus');
         const v = JSON.parse(result[0]).vendor;
         const values = (v?.fan_curve ?? '').trim().split(/\s+/).map(Number);
-        if (!validCurve(values, 0)) throw new Error('固件曲线接口不可用');
-        return {values, mode: v.fan_control};
+        if (!v) throw new Error('固件接口不可用');
+        const initialized = validCurve(values, 0);
+        return {values: initialized ? values : DEFAULTS, initialized, mode: v.fan_control, response: v.fan_response_ms};
     }
     async load() {
         if (this.busy) return;
@@ -122,8 +146,13 @@ export class CurveEditor {
             if (this.closed) return;
             this.ready = true;
             this.populate(current.values);
-            this.feedback.label = current.mode === 'curve' ? '已读取 · 曲线正在生效' : '已读取 · 当前未启用曲线';
-        } catch (e) { this.ready = false; this.feedback.label = `读取失败：${e.message}`; }
+            this.responseAvailable = Number.isInteger(current.response) && current.response >= 0 && current.response <= 12700 && current.response % 100 === 0;
+            this.loading = true;
+            this.responseEnabled.active = this.responseAvailable && current.response > 0;
+            this.responseTime.value = current.response > 0 ? current.response / 100 : 3;
+            this.loading = false;
+            this.feedback.label = !current.initialized ? '未读取到兼容曲线，已填入默认曲线，点击应用后生效' : current.mode === 'curve' ? '已读取 · 曲线正在生效' : '已读取 · 当前未启用曲线';
+        } catch (e) { this.ready = false; this.responseAvailable = false; this.feedback.label = `读取失败：${e.message}`; }
         finally { this.busy = false; this.sync(); }
     }
     async apply() {
@@ -138,6 +167,25 @@ export class CurveEditor {
             if (current.mode !== 'curve' || values.some((v, i) => v !== current.values[i])) throw new Error('读回结果不一致，请重新读取');
             this.feedback.label = '已应用 · 两路风扇由 EC 按曲线自动调速';
         } catch (e) { this.feedback.label = `应用未确认：${e.message}。可重新读取当前状态`; }
+        finally { this.busy = false; this.sync(); }
+    }
+    responseChanged() {
+        this.responseLabel.label = `${Math.round(this.responseTime.value) * 100} ms/0.5%`;
+        if (!this.loading && this.feedback) this.feedback.label = '响应速度有未应用的修改';
+        this.sync();
+    }
+    async applyResponse() {
+        if (this.busy || !this.responseAvailable) return;
+        const value = this.responseEnabled.active ? Math.round(this.responseTime.value) * 100 : 0;
+        this.busy = true;
+        this.sync();
+        this.feedback.label = '正在应用响应速度…';
+        try {
+            await this.rpc('Set', ['fan_response_ms', String(value)]);
+            const current = await this.read();
+            if (current.response !== value) throw new Error('读回结果不一致');
+            this.feedback.label = value ? `已应用 · ${value} ms/0.5%` : '已关闭 · 使用固件默认响应';
+        } catch (e) { this.feedback.label = `响应速度应用未确认：${e.message}。可重新读取当前状态`; }
         finally { this.busy = false; this.sync(); }
     }
     geometry(w, h) {

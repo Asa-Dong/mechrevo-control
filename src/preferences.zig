@@ -15,10 +15,12 @@ pub const Preferences = struct {
     keyboard_rgb: ?[]const u8 = null,
     charging_profile: ?[]const u8 = null,
     fan: ?Fan = null,
+    fan_response_ms: ?[]const u8 = null,
 };
 pub const Setting = struct { key: []const u8, value: []const u8 };
 
 pub fn validate(p: Preferences) !void {
+    if (p.fan_response_ms) |v| if (!control.valid("fan_response_ms", v)) return error.InvalidPreferences;
     if (p.version != 1) return error.InvalidPreferences;
     if (p.keyboard_rgb) |v| if (!control.valid("keyboard_rgb", v)) return error.InvalidPreferences;
     if (p.charging_profile) |v| if (!control.valid("charging_profile", v)) return error.InvalidPreferences;
@@ -83,7 +85,8 @@ pub fn remember(a: A, key: []const u8) !void {
         p.keyboard_rgb = try read(a, hw, "keyboard_rgb");
         p.charging_profile = try read(a, hw, "charging_profile");
         p.fan = try captureFan(a, hw);
-    } else if (std.mem.eql(u8, key, "keyboard_rgb")) p.keyboard_rgb = try read(a, hw, key) else if (std.mem.eql(u8, key, "charging_profile")) p.charging_profile = try read(a, hw, key) else p.fan = try captureFan(a, hw);
+        p.fan_response_ms = try read(a, hw, "fan_response_ms");
+    } else if (std.mem.eql(u8, key, "fan_response_ms")) p.fan_response_ms = try read(a, hw, key) else if (std.mem.eql(u8, key, "keyboard_rgb")) p.keyboard_rgb = try read(a, hw, key) else if (std.mem.eql(u8, key, "charging_profile")) p.charging_profile = try read(a, hw, key) else p.fan = try captureFan(a, hw);
     try save(a, dir, p);
 }
 // A validated replay plan makes it impossible to restore brightness/performance.
@@ -92,6 +95,7 @@ pub fn plan(a: A, p: Preferences) ![]Setting {
     var settings = std.ArrayList(Setting).init(a);
     if (p.keyboard_rgb) |v| try settings.append(.{ .key = "keyboard_rgb", .value = v });
     if (p.charging_profile) |v| try settings.append(.{ .key = "charging_profile", .value = v });
+    if (p.fan_response_ms) |v| try settings.append(.{ .key = "fan_response_ms", .value = v });
     if (p.fan) |f| {
         if (std.mem.eql(u8, f.mode, "manual")) {
             try settings.append(.{ .key = "fan1_percent", .value = f.percent1.? });
@@ -168,4 +172,18 @@ test "readback captures fan parameters and automatic mode drops stale curve" {
     const steps = try plan(a, .{ .fan = automatic });
     try std.testing.expectEqual(@as(usize, 1), steps.len);
     try std.testing.expectEqualStrings("auto", steps[0].value);
+}
+
+test "response persists independently and replays before curve" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    try save(a, tmp.dir, .{ .fan_response_ms = "600", .fan = .{ .mode = "curve", .curve = "0 0 60 80 100 0 0 60 80 100" } });
+    const steps = try plan(a, try load(a, tmp.dir));
+    try std.testing.expectEqualStrings("fan_response_ms", steps[0].key);
+    try std.testing.expectEqualStrings("600", steps[0].value);
+    try std.testing.expectEqualStrings("fan_curve", steps[1].key);
+    try std.testing.expectError(error.InvalidPreferences, validate(.{ .fan_response_ms = "150" }));
 }

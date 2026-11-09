@@ -1,0 +1,5 @@
+before {'control': 'firmware', 'mode': 'office', 'fan_control': 'auto', 'fan_response_ms': '0'}
+PASS response write/read 300
+PASS response write/read 600
+PASS response write/read 0
+PASS invalid values rejected; release restored original response; mode and automatic fan retained

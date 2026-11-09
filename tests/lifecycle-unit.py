@@ -25,7 +25,7 @@ prefix = r'''
 #include <string.h>
 #include <errno.h>
 #define BIT(n) (1U << (n))
-#define DIRTY_GATE BIT(6)
+#define DIRTY_GATE BIT(7)
 #define DIRTY_CURVE BIT(5)
 #define NOTIFY_DONE 0
 #define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
@@ -37,7 +37,7 @@ struct mr {
     struct notifier_block reboot;
     struct device *dev, *hwmon;
     bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy;
-    unsigned int fan_target[2], curve_points[10], dirty, mode, light, rgb[3], charge;
+    unsigned int fan_target[2], curve_points[10], dirty, mode, light, rgb[3], charge, response;
     int last_error;
 };
 static unsigned int ec[65536], pwm[2];

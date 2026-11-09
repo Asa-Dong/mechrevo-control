@@ -28,6 +28,12 @@ pub fn valid(key: []const u8, value: []const u8) bool {
         const n = std.fmt.parseInt(u8, value, 10) catch return false;
         return n <= 100;
     }
+    if (std.mem.eql(u8, key, "fan_response_ms")) {
+        if (value.len == 0 or value.len > 5) return false;
+        for (value) |ch| if (ch < '0' or ch > '9') return false;
+        const n = std.fmt.parseInt(u16, value, 10) catch return false;
+        return n <= 12700 and n % 100 == 0;
+    }
     if (std.mem.eql(u8, key, "fan_curve")) {
         var it = std.mem.tokenizeScalar(u8, value, ' ');
         var count: usize = 0;
@@ -70,6 +76,7 @@ pub const defaults = [_]struct { key: []const u8, value: []const u8 }{
     .{ .key = "keyboard_brightness", .value = "1" },
     .{ .key = "keyboard_rgb", .value = "50 50 50" },
     .{ .key = "charging_profile", .value = "high_capacity" },
+    .{ .key = "fan_response_ms", .value = "0" },
 };
 pub fn apply(a: A, key: []const u8, value: []const u8) !void {
     if (!valid(key, value)) return error.InvalidSetting;
@@ -129,11 +136,16 @@ test "curve accepts zero and non-full-speed last bins" {
 }
 
 test "fixed defaults are valid and independent of the acquisition snapshot" {
-    try std.testing.expectEqual(@as(usize, 5), defaults.len);
+    try std.testing.expectEqual(@as(usize, 6), defaults.len);
     for (defaults) |setting| try std.testing.expect(valid(setting.key, setting.value));
     try std.testing.expectEqualStrings("auto", defaults[0].value);
     try std.testing.expectEqualStrings("office", defaults[1].value);
     try std.testing.expectEqualStrings("1", defaults[2].value);
     try std.testing.expectEqualStrings("50 50 50", defaults[3].value);
     try std.testing.expectEqualStrings("high_capacity", defaults[4].value);
+}
+
+test "fan response bounds and step" {
+    for ([_][]const u8{ "0", "100", "300", "600", "11600", "12700" }) |v| try std.testing.expect(valid("fan_response_ms", v));
+    for ([_][]const u8{ "", "-100", "1", "150", "12800", "65536", "300 extra" }) |v| try std.testing.expect(!valid("fan_response_ms", v));
 }

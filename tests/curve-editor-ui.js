@@ -8,18 +8,30 @@ Adw.init();
 Gio.resources_register(Gio.Resource.load('/usr/share/gnome-shell/org.gnome.Shell.Extensions.src.gresource'));
 const {default: Preferences} = await import('../extension/prefs.js');
 if (typeof Preferences.prototype.fillPreferencesWindow !== 'function') throw new Error('Preferences entry point missing');
-let stored = [...DEFAULTS], mode = 'auto', writes = 0, fail = false;
+let stored = [...DEFAULTS], mode = 'auto', writes = 0, fail = false, response = 0;
 const window = new Adw.PreferencesWindow();
 const rpc = async (method, args) => {
     await sleep(10);
     if (fail) throw new Error('模拟连接失败');
+    if (method === 'Set' && args[0] === 'fan_response_ms') { response = Number(args[1]); return []; }
     if (method === 'Set') { writes++; stored = args[1].split(' ').map(Number); mode = 'curve'; return []; }
-    return [JSON.stringify({vendor: {fan_curve: stored.join(' '), fan_control: mode}})];
+    return [JSON.stringify({vendor: {fan_curve: stored.join(' '), fan_control: mode, fan_response_ms: response}})];
 };
 const editor = new CurveEditor(window, rpc);
 window.present();
 await sleep(400);
 if (!editor.ready || writes) throw new Error('Initial read must not write');
+if (!editor.responseAvailable || editor.responseEnabled.active) throw new Error('Disabled response readback failed');
+editor.responseEnabled.active = true;
+editor.responseTime.value = 6;
+if (response !== 0 || editor.responseLabel.label !== '600 ms/0.5%') throw new Error('Response draft wrote hardware');
+await editor.applyResponse();
+if (response !== 600 || mode !== 'auto' || writes) throw new Error('Response changed fan mode');
+await editor.load();
+if (editor.responseTime.value !== 6 || !editor.responseEnabled.active) throw new Error('Response reload failed');
+editor.responseEnabled.active = false;
+await editor.applyResponse();
+if (response !== 0 || writes) throw new Error('Response disable failed');
 editor.points[0].set_value(70);
 if (editor.applyButton.sensitive || validCurve(editor.values())) throw new Error('Descending curve accepted');
 await editor.apply();

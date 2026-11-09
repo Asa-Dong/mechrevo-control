@@ -47,3 +47,5 @@ sudo rmmod mechrevo_control
 固件 RAM 曲线补充协议参考：https://github.com/nemoiwkryang/Open-Mechrevo-FanSlider ，固定提交 c6665cfc15b7ceb0d08111ea317d9ceccc2feb2e（MIT）。本机测试发现 TUXEDO 的首 duty 非零方案不会启用该 EC 的自定义温区表；补全启用条件后已验证自主维持和温度跨档。
 
 均衡充电档使用既有 0x07A6 bits 4–5 的 0x10 编码，与读取路径一致；本次仅完成代码和构建验证，尚未在本机验证该档写入及实际充电行为。
+
+风扇响应时间：`fan_response_ms` 为 0（关闭自定义响应）或 100–12700，步长 100，单位 ms/0.5%。固定写入 EC 0x0787，编码为 `0x80 | (ms / 100)`，关闭写 0；写后读回核对。接管时备份原始字节，显式 release 恢复。不会改变性能/风扇模式或直接写 PWM。当前实机动态验证仅覆盖 CPU 升速 300/600 ms；完整范围来源于 Windows 控制中心界面。

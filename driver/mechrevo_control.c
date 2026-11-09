@@ -22,7 +22,8 @@
 #define DIRTY_CHARGE BIT(3)
 #define DIRTY_FAN BIT(4)
 #define DIRTY_CURVE BIT(5)
-#define DIRTY_GATE BIT(6)
+#define DIRTY_RESPONSE BIT(6)
+#define DIRTY_GATE BIT(7)
 struct mr {
 	struct mutex lock;
 	acpi_handle ec;
@@ -32,7 +33,7 @@ struct mr {
 	bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy;
 	unsigned int fan_target[2];
 	unsigned int curve_points[10];
-	unsigned int dirty, mode, light, rgb[3], charge;
+	unsigned int dirty, mode, light, rgb[3], charge, response;
 	unsigned long last_key;
 	int last_error;
 };
@@ -294,6 +295,9 @@ static int restore(struct mr *d)
 			case DIRTY_FAN:
 				ret = fan_restore(d);
 				break;
+			case DIRTY_RESPONSE:
+				ret = curve_byte(d, 0x0787, d->response);
+				break;
 			case DIRTY_CHARGE:
 				ret = mask(d, 0x07a6, 0x30, d->charge);
 				break;
@@ -389,6 +393,8 @@ static int acquire(struct mr *d)
 	if (rd(d, 0x07a6, &v) || ((v >> 4) & 3) > 2)
 		return -EIO;
 	d->charge = v & 0x30;
+	if (rd(d, 0x0787, &d->response))
+		return -EIO;
 	d->dirty = DIRTY_GATE;
 	ret = mask(d, 0x0741, 1, 1);
 	if (ret) {
@@ -502,6 +508,10 @@ static ssize_t setting_show(struct device *dev, struct device_attribute *attr, c
 					 : (v & 0x40)	  ? "boost"
 					 : (split & 0x80) ? "manual"
 							  : "auto");
+	} else if (!strcmp(attr->attr.name, "fan_response_ms")) {
+		ret = rd(d, 0x0787, &v);
+		if (!ret)
+			ret = sysfs_emit(buf, "%u\n", (v & 0x80) ? (v & 0x7f) * 100 : 0);
 	} else if (!strcmp(attr->attr.name, "fan_curve")) {
 		if (!d->curve_valid) {
 			ret = -ENODATA;
@@ -573,6 +583,11 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 		else
 			return -EINVAL;
 		kind = DIRTY_FAN;
+	} else if (!strcmp(attr->attr.name, "fan_response_ms")) {
+		if (kstrtouint(buf, 10, &v) || v > 12700 || v % 100)
+			return -EINVAL;
+		v = v ? 0x80 | (v / 100) : 0;
+		kind = DIRTY_RESPONSE;
 	} else if (!strcmp(attr->attr.name, "fan_curve")) {
 		if (sscanf(buf, "%u %u %u %u %u %u %u %u %u %u %c", &points[0], &points[1],
 			   &points[2], &points[3], &points[4], &points[5], &points[6], &points[7],
@@ -649,7 +664,9 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 			ret = mask(d, 0x0751, 0xb0, v);
 			if (!ret && d->curve_fans)
 				ret = curve_apply(d);
-		} else if (kind == DIRTY_LIGHT)
+		} else if (kind == DIRTY_RESPONSE)
+			ret = curve_byte(d, 0x0787, v);
+		else if (kind == DIRTY_LIGHT)
 			ret = brightness(d, v);
 		else if (kind == DIRTY_CHARGE)
 			ret = mask(d, 0x07a6, 0x30, v);
@@ -670,6 +687,7 @@ out:
 SETTING(mode);
 SETTING(fan_control);
 SETTING(fan_curve);
+SETTING(fan_response_ms);
 SETTING(fan1_percent);
 SETTING(fan2_percent);
 SETTING(keyboard_brightness);
@@ -681,17 +699,12 @@ static ssize_t last_error_show(struct device *dev, struct device_attribute *attr
 	return sysfs_emit(buf, "%d\n", READ_ONCE(d->last_error));
 }
 static DEVICE_ATTR_RO(last_error);
-static struct attribute *attrs[] = {&dev_attr_fan_curve.attr,
-				    &dev_attr_fan_control.attr,
-				    &dev_attr_fan1_percent.attr,
-				    &dev_attr_fan2_percent.attr,
-				    &dev_attr_control.attr,
-				    &dev_attr_mode.attr,
-				    &dev_attr_keyboard_brightness.attr,
-				    &dev_attr_keyboard_rgb.attr,
-				    &dev_attr_charging_profile.attr,
-				    &dev_attr_last_error.attr,
-				    NULL};
+static struct attribute *attrs[] = {&dev_attr_fan_curve.attr,	 &dev_attr_fan_response_ms.attr,
+				    &dev_attr_fan_control.attr,	 &dev_attr_fan1_percent.attr,
+				    &dev_attr_fan2_percent.attr, &dev_attr_control.attr,
+				    &dev_attr_mode.attr,	 &dev_attr_keyboard_brightness.attr,
+				    &dev_attr_keyboard_rgb.attr, &dev_attr_charging_profile.attr,
+				    &dev_attr_last_error.attr,	 NULL};
 static const struct attribute_group group = {.attrs = attrs};
 static const struct attribute_group *groups[] = {&group, NULL};
 
