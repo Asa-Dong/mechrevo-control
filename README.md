@@ -2,7 +2,7 @@
 
 面向 **Debian 13 / GNOME 48** 的机械革命笔记本控制工具。C 内核驱动提供硬件接口，Zig 服务负责 D-Bus 与授权，GNOME 扩展提供顶栏监测和控制菜单。
 
-当前版本：**1.0.0** · [更新记录](CHANGELOG.md) · [发布下载](https://github.com/Asa-Dong/mechrevo-control/releases) · [开发指南](CONTRIBUTING.md)
+当前版本：**1.1.0** · [更新记录](CHANGELOG.md) · [发布下载](https://github.com/Asa-Dong/mechrevo-control/releases) · [开发指南](CONTRIBUTING.md)
 
 ## 功能
 
