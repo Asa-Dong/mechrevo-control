@@ -2,6 +2,7 @@
 const std = @import("std");
 const status = @import("status.zig");
 const control = @import("control.zig");
+const preferences = @import("preferences.zig");
 const c = @cImport({
     @cInclude("systemd/sd-bus.h");
     @cInclude("signal.h");
@@ -75,6 +76,10 @@ fn handler(m: ?*c.sd_bus_message, _: ?*anyopaque, _: ?*c.sd_bus_error) callconv(
             const msg = a.dupeZ(u8, @errorName(err)) catch return -12;
             return c.sd_bus_reply_method_errorf(m, "io.github.mechrevo.Error.WriteFailed", "%s", msg.ptr);
         };
+        preferences.remember(a, k) catch |err| {
+            std.log.err("Hardware applied, but preferences could not be saved: {s}", .{@errorName(err)});
+            return c.sd_bus_reply_method_errorf(m, "io.github.mechrevo.Error.SaveFailed", "Setting applied but saving for restart failed");
+        };
         return c.sd_bus_reply_method_return(m, "");
     }
     const json = status.snapshot(a, "/sys") catch return c.sd_bus_reply_method_errorf(m, "io.github.mechrevo.Error.ReadFailed", "Hardware status unavailable");
@@ -102,6 +107,7 @@ pub fn main() !void {
     defer _ = c.sd_bus_flush_close_unref(bus);
     if (c.sd_bus_add_object(bus, null, path, handler, null) < 0) return error.ObjectRegistrationFailed;
     if (c.sd_bus_request_name(bus, name, 0) < 0) return error.BusNameUnavailable;
+    if (system_mode) try preferences.restore(a);
     _ = c.signal(c.SIGTERM, stop);
     _ = c.signal(c.SIGINT, stop);
     while (!stopping.load(.acquire)) {

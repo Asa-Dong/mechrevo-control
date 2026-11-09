@@ -230,7 +230,7 @@ export default class MechrevoControl extends Extension {
             ? `充电：${chargeProfile} · 实际限充效果待验证`
             : '充电配置不可用';
 
-        this._release.setSensitive(writable && v?.control !== 'firmware');
+        this._release.setSensitive(writable);
         const message = this._writing ? '正在应用设置…' : this._error || (v?.control === 'restore_failed' ? '控制出错，请手动恢复' : '') || (!v ? '控制驱动不可用' : this._bus !== Gio.DBus.system ? '只读模式：系统服务未连接' : '');
         // Reserve one line: showing/hiding feedback moves the whole popup.
         this._feedback.label.text = message || ' ';

@@ -13,5 +13,8 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
     const tests = b.addTest(.{ .root_source_file = b.path("src/status.zig"), .target = target, .optimize = optimize });
     tests.linkLibC();
-    b.step("test", "Test hardware discovery").dependOn(&b.addRunArtifact(tests).step);
+    const test_step = b.step("test", "Test discovery, control and preferences");
+    test_step.dependOn(&b.addRunArtifact(tests).step);
+    const preferences_tests = b.addTest(.{ .root_source_file = b.path("src/preferences.zig"), .target = target, .optimize = optimize });
+    test_step.dependOn(&b.addRunArtifact(preferences_tests).step);
 }

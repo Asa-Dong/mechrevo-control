@@ -1,6 +1,6 @@
 [Unit]
 Description=Mechrevo hardware control service
-After=dbus.service modprobe@nvidia.service nvidia-persistenced.service
+After=dbus.service systemd-modules-load.service modprobe@nvidia.service nvidia-persistenced.service
 Wants=modprobe@nvidia.service
 
 [Service]
@@ -22,6 +22,8 @@ DeviceAllow=char-nvidia rw
 RestrictAddressFamilies=AF_UNIX
 CapabilityBoundingSet=
 ReadWritePaths=/sys/devices
+StateDirectory=mechrevo-control
+StateDirectoryMode=0700
 
 [Install]
 WantedBy=multi-user.target

@@ -40,7 +40,7 @@ try:
     assert snapshot()['control'] == 'active'
     set_value('control', 'release')
     after = snapshot()
-    assert after['control'] == 'firmware' and after['fan_control'] == 'auto', after
+    assert after['control'] == 'active' and after['fan_control'] == 'auto' and after['mode'] == 'office', after
     print('PASS: reacquire and explicit reset remain available', flush=True)
 finally:
     run('modprobe', 'mechrevo_control')

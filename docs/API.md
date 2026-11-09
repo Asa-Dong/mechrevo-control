@@ -14,7 +14,7 @@ GPU 活动时复用 NVML 会话读取温度/功耗；休眠或切换状态时不
 
 仅系统服务接受写入；固定键值白名单、活动本地桌面会话检查与 Polkit 授权，root 可管理调用。属性列表见 [驱动接口](../driver/README.md)。`control` 对外只接受 `release`；内部按需 acquire。
 
-错误包括 `InvalidArgs`、`AccessDenied`、`io.github.mechrevo.Error.WriteFailed` 和 `io.github.mechrevo.Error.ReadFailed`。错误不会伪装成成功，也不会触发全量自动还原。
+错误包括 `InvalidArgs`、`AccessDenied`、`io.github.mechrevo.Error.WriteFailed` 和 `io.github.mechrevo.Error.ReadFailed`。`io.github.mechrevo.Error.SaveFailed` 表示硬件已应用但磁盘保存失败；不得把它显示为已保存。错误不会触发全量自动还原。成功设置 RGB/充电/风扇后保存相应偏好，`control=release` 在用户态应用固定默认值（办公、自动风扇、亮度 1、RGB 50/50/50、高容量）并保存 RGB/风扇/充电预设。底层 sysfs release 仍为驱动释放操作，不等同于 D-Bus 的固定默认值。
 
 ```sh
 busctl --system call io.github.mechrevo.Control1 /io/github/mechrevo/Control1 io.github.mechrevo.Control1 GetStatus

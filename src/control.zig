@@ -64,13 +64,27 @@ pub fn write(dir: std.fs.Dir, key: []const u8, value: []const u8) !void {
     defer file.close();
     try file.writeAll(value);
 }
+pub const defaults = [_]struct { key: []const u8, value: []const u8 }{
+    .{ .key = "fan_control", .value = "auto" },
+    .{ .key = "mode", .value = "office" },
+    .{ .key = "keyboard_brightness", .value = "1" },
+    .{ .key = "keyboard_rgb", .value = "50 50 50" },
+    .{ .key = "charging_profile", .value = "high_capacity" },
+};
 pub fn apply(a: A, key: []const u8, value: []const u8) !void {
     if (!valid(key, value)) return error.InvalidSetting;
     const path = try find(a, "/sys") orelse return error.DriverUnavailable;
     var dir = try std.fs.cwd().openDir(path, .{});
     defer dir.close();
-    if (!std.mem.eql(u8, key, "control")) try write(dir, "control", "acquire");
-    try write(dir, key, value);
+    if (std.mem.eql(u8, key, "control")) {
+        // Release clears any previous failed control session before applying the preset.
+        try write(dir, "control", "release");
+        try write(dir, "control", "acquire");
+        for (defaults) |setting| try write(dir, setting.key, setting.value);
+    } else {
+        try write(dir, "control", "acquire");
+        try write(dir, key, value);
+    }
 }
 pub fn release(a: A) !void {
     const path = try find(a, "/sys") orelse return error.DriverUnavailable;
@@ -112,4 +126,14 @@ test "firmware curve rejects nonmonotonic, short and unbounded tables" {
 test "curve accepts zero and non-full-speed last bins" {
     try std.testing.expect(valid("fan_curve", "0 0 0 0 0 10 10 10 10 10"));
     try std.testing.expect(!valid("fan_curve", "0 0 0 0 101 10 10 10 10 10"));
+}
+
+test "fixed defaults are valid and independent of the acquisition snapshot" {
+    try std.testing.expectEqual(@as(usize, 5), defaults.len);
+    for (defaults) |setting| try std.testing.expect(valid(setting.key, setting.value));
+    try std.testing.expectEqualStrings("auto", defaults[0].value);
+    try std.testing.expectEqualStrings("office", defaults[1].value);
+    try std.testing.expectEqualStrings("1", defaults[2].value);
+    try std.testing.expectEqualStrings("50 50 50", defaults[3].value);
+    try std.testing.expectEqualStrings("high_capacity", defaults[4].value);
 }

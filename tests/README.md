@@ -18,12 +18,12 @@
 
 ```sh
 sudo env MECHREVO_HARDWARE_TEST=1 python3 tests/gpu-runtime-pm.py
+sudo env MECHREVO_HARDWARE_TEST=1 python3 tests/preferences-hardware.py
 sudo env MECHREVO_HARDWARE_TEST=1 python3 tests/lifecycle-hardware.py
-sudo env MECHREVO_HARDWARE_TEST=1 sh tests/manual-controls.sh
 sudo env MECHREVO_HARDWARE_TEST=1 sh tests/curve-persistence.sh
 ```
 
-`system-smoke.sh` 要求没有现存系统服务/策略文件；`kernel-smoke.sh` 会卸载模块。其余脚本用于定向曲线、零值、模式切换实验，有的依赖先编译诊断模块。多数早期脚本要求 `control=firmware`，不应批量无差别运行。
+`system-smoke.sh` 要求没有现存系统服务/策略文件；`kernel-smoke.sh` 会卸载模块。其余脚本用于定向曲线、零值、模式切换实验，有的依赖先编译诊断模块。`manual-controls.sh`、`manual-zero.sh`、`curve-switch.sh`、`firmware-curve.sh` 和 `system-smoke.sh` 等早期脚本仍使用旧版 D-Bus release 语义，仅作为历史实验保留；当前固定默认值和持久化行为用 `preferences-hardware.py` 验证，不应批量无差别运行。
 
 历史实测在 `docs/validation/`；描述旧版本的“退出恢复”等语义不适用于 1.0.0。每次验证需区分服务重启、驱动重载、实际睡眠和整机重启。
 
