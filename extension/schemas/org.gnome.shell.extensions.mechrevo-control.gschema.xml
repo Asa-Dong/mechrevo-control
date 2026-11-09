@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.mechrevo-control" path="/org/gnome/shell/extensions/mechrevo-control/">
+    <key name="keyboard-idle-seconds" type="u">
+      <default>0</default>
+      <range min="0" max="300"/>
+      <summary>Seconds of desktop inactivity before turning off the keyboard light</summary>
+    </key>
+  </schema>
+</schemalist>

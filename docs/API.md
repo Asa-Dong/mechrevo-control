@@ -24,4 +24,4 @@ busctl --system call io.github.mechrevo.Control1 /io/github/mechrevo/Control1 io
 
 1.0.0 不再提供预发布的 `fan_boost` 字段/写入键，使用 `fan_control=auto/boost`。服务无参数运行在用户会话总线上，仅支持只读；`--system` 为系统服务，`--once` 打印一次状态，`--version` 打印版本。
 
-充电配置 `charging_profile` 支持 `high_capacity`、`balanced`、`stationary`。
+充电配置 `charging_profile` 支持 `high_capacity`、`balanced`、`stationary`。键盘自动关灯秒数是 GNOME 扩展的用户偏好 `keyboard-idle-seconds`（0–300），不新增 sysfs 或 D-Bus 属性；扩展通过现有亮度接口关灯、恢复。

@@ -10,7 +10,7 @@ export const METRICS = {};
 export async function run() {
     Main.overview.hide();
     const dir = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent().get_child('extension');
-    const ext = new Control({uuid: 'mechrevo-ui-test', path: dir.get_path(), dir});
+    const ext = new Control({uuid: 'mechrevo-ui-test', path: dir.get_path(), dir, 'settings-schema': 'org.gnome.shell.extensions.mechrevo-control'});
     ext.enable();
     try {
         await Scripting.sleep(1800);
@@ -18,6 +18,18 @@ export async function run() {
         ext._refresh = () => {}; // Keep deterministic UI fixtures after the initial real read.
         if (ext._buttons.some(e => e.setting === 'fan_control' && e.value === 'boost')) throw new Error('Full speed option still exposed');
         if (!ext._buttons.some(e => e.setting === 'fan_control' && e.value === 'curve')) throw new Error('Curve option missing');
+        // Auto-off changes hardware brightness, never the user's selected slider level.
+        const light = ext._sliders.find(e => e.setting === 'keyboard_brightness');
+        const originalLight = ext._data.vendor.keyboard_brightness;
+        ext._keyboardIdle.saved = 3;
+        ext._data.vendor.keyboard_brightness = 0;
+        ext._sync();
+        if (light.label.text !== '3' || light.slider.value !== 0.75)
+            throw new Error('Auto-off must preserve brightness 3 in the UI');
+        ext._keyboardIdle.forget();
+        ext._sync();
+        if (light.label.text !== '0') throw new Error('Explicit off must still display 0');
+        ext._data.vendor.keyboard_brightness = originalLight;
         // Display the complete layout without touching hardware fan mode.
         ext._data.vendor.fan_control = 'manual';
         ext._sync();
@@ -74,6 +86,16 @@ export async function run() {
         pointer.notify_button(GLib.get_monotonic_time(), 1, Clutter.ButtonState.RELEASED);
         await Scripting.sleep(100);
         if (calls.at(-1)?.[1] !== 'turbo') throw new Error('Real pointer click did not reach mode button');
+        if (ext._keyboardMenu.menu.isOpen) throw new Error('Keyboard submenu should start collapsed');
+        const collapsedWidth = ext._button.menu.actor.width;
+        ext._keyboardMenu.setSubmenuShown(true);
+        await Scripting.sleep(300);
+        if (ext._button.menu.actor.width !== collapsedWidth)
+            throw new Error(`Keyboard submenu changes popup width: ${collapsedWidth} -> ${ext._button.menu.actor.width}`);
+        const expectedSliderWidth = ext._sliders[0].slider.width;
+        if (ext._sliders.some(e => e.slider.width !== expectedSliderWidth))
+            throw new Error('Slider track widths differ');
+        if (!ext._keyboardMenu.menu.isOpen) throw new Error('Keyboard submenu did not open');
         // Drag updates must not write until release; refresh cannot move a held slider.
         for (const e of ext._sliders) {
             calls = [];
@@ -87,6 +109,29 @@ export async function run() {
             await Scripting.sleep(100);
             if (calls.length !== 1 || calls[0][0] !== e.setting) throw new Error('Slider release dispatch failed');
         }
+        const timeout = ext._sliders.find(e => e.setting === 'keyboard-idle-seconds');
+        const menuWidthBefore = ext._button.menu.actor.width;
+        const sliderWidthBefore = timeout.slider.width;
+        const sliderXBefore = timeout.slider.get_transformed_position()[0];
+        timeout.slider.emit('drag-begin');
+        for (const seconds of [0, 1, 9, 10, 99, 100, 300, 9, 0]) {
+            timeout.slider.value = seconds / 300;
+            await Scripting.sleep(60);
+            if (ext._button.menu.actor.width !== menuWidthBefore ||
+                timeout.slider.width !== sliderWidthBefore ||
+                timeout.slider.get_transformed_position()[0] !== sliderXBefore)
+                throw new Error(`Timeout ${seconds} changes menu or slider geometry`);
+        }
+        timeout.slider.emit('drag-end');
+        await Scripting.sleep(100);
+        Control.prototype._set.call(ext, 'keyboard-idle-seconds', '120');
+        if (ext._settings.get_uint('keyboard-idle-seconds') !== 120 || timeout.label.text !== '120 秒')
+            throw new Error('Timeout slider does not save seconds');
+        Control.prototype._set.call(ext, 'keyboard-idle-seconds', '301');
+        if (ext._settings.get_uint('keyboard-idle-seconds') !== 120 || timeout.maximum !== 300)
+            throw new Error('Timeout upper bound must be 300 seconds');
+        Control.prototype._set.call(ext, 'keyboard-idle-seconds', '0');
+        if (timeout.label.text !== '关闭') throw new Error('Zero timeout must display disabled');
         // Keyboard/scroll changes are coalesced.
         calls = [];
         const bright = ext._sliders.find(e => e.setting === 'keyboard_brightness');
@@ -112,6 +157,11 @@ export async function run() {
         const before = ext._buttons[0].button;
         ext._sync();
         if (before !== ext._buttons[0].button || !ext._button.menu.isOpen) throw new Error('Menu rebuilt');
+        const keyboardStream = Gio.File.new_for_path(GLib.getenv('MECHREVO_UI_SCREENSHOT').replace('.png', '-keyboard.png')).replace(null, false, Gio.FileCreateFlags.NONE, null);
+        await new Shell.Screenshot().screenshot(false, keyboardStream);
+        keyboardStream.close(null);
+        ext._keyboardMenu.setSubmenuShown(false);
+        await Scripting.sleep(300);
         const stream = Gio.File.new_for_path(GLib.getenv('MECHREVO_UI_SCREENSHOT') || '/tmp/mechrevo-menu-preview.png').replace(null, false, Gio.FileCreateFlags.NONE, null);
         const [menuX, menuY] = ext._button.menu.actor.get_transformed_position();
         const [menuWidth, menuHeight] = ext._button.menu.actor.get_transformed_size();

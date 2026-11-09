@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import St from 'gi://St';
+import {KeyboardIdle} from './keyboardIdle.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -17,6 +18,7 @@ export default class MechrevoControl extends Extension {
         this._active = true;
         this._cancellable = new Gio.Cancellable();
         this._bus = Gio.DBus.system;
+        this._brightnessRevision = 0;
         this._pending = false;
         this._writing = false;
         this._data = null;
@@ -30,9 +32,33 @@ export default class MechrevoControl extends Extension {
         this._label = new St.Label({text: '硬件 …', y_align: Clutter.ActorAlign.CENTER});
         this._button.add_child(this._label);
         Main.panel.addToStatusArea(this.uuid, this._button);
+        this._settings = this.getSettings();
         this._buildMenu();
+        this._settingsChanged = this._settings.connect('changed::keyboard-idle-seconds', () => this._sync());
         this._button.menu.connect('open-state-changed', (_menu, open) => {
             if (open) this._refresh();
+        });
+        this._keyboardIdle = new KeyboardIdle({
+            idle: () => global.backend.get_core_idle_monitor().get_idletime(),
+            brightness: () => this._data?.vendor?.keyboard_brightness,
+            ready: () => this._bus === Gio.DBus.system && !this._writing && Boolean(this._data?.vendor),
+            write: value => new Promise((resolve, reject) => {
+                Gio.DBus.system.call(NAME, PATH, NAME, 'Set', new GLib.Variant('(ss)', ['keyboard_brightness', String(value)]),
+                    new GLib.VariantType('()'), Gio.DBusCallFlags.NONE, 5000, null, (connection, result) => {
+                        try {
+                            connection.call_finish(result);
+                            this._brightnessRevision++;
+                            if (this._active && this._data?.vendor)
+                                this._data.vendor.keyboard_brightness = value;
+                            resolve();
+                        } catch (e) { reject(e); }
+                    });
+            }),
+            report: error => console.error(`[Mechrevo keyboard idle] ${error.message}`),
+        });
+        this._idleTimer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
+            this._keyboardIdle.tick(this._settings.get_uint('keyboard-idle-seconds'));
+            return GLib.SOURCE_CONTINUE;
         });
         this._refresh();
         this._timer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
@@ -65,20 +91,27 @@ export default class MechrevoControl extends Extension {
         this._button.menu.addMenuItem(row);
     }
 
-    _slider(title, setting, minimum, maximum, channel = null) {
+    _sliderText(setting, n) {
+        if (setting === 'keyboard-idle-seconds') return n === 0 ? '关闭' : `${n} 秒`;
+        return setting.startsWith('fan') ? `${n}%` : String(n);
+    }
+
+    _slider(title, setting, minimum, maximum, channel = null, menu = this._button.menu) {
         const row = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false, activate: false});
         row.add_child(new St.Label({text: title, style: 'min-width: 72px;', y_align: Clutter.ActorAlign.CENTER}));
         const slider = new Slider.Slider(0);
         slider.style = 'min-width: 150px;';
         slider.accessible_name = title;
         row.add_child(slider);
-        const label = new St.Label({text: '-', style: 'min-width: 36px;', y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.END});
+        // Every slider uses the same columns, including room for '300 秒'.
+        const valueStyle = 'width: 4em; text-align: right;';
+        const label = new St.Label({text: '-', style: valueStyle, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.END});
         row.add_child(label);
         const entry = {row, slider, label, setting, minimum, maximum, channel, dirty: false, dragging: false};
         this._sliders.push(entry);
         const update = () => {
             const n = Math.round(minimum + slider.value * (maximum - minimum));
-            label.text = setting.startsWith('fan') ? `${n}%` : `${n}`;
+            label.text = this._sliderText(setting, n);
             if (this._syncing) return;
             entry.dirty = true;
             this._error = '';
@@ -96,7 +129,7 @@ export default class MechrevoControl extends Extension {
             slider.value = (n - minimum) / (maximum - minimum);
             if (entry.dirty) this._scheduleSlider(entry, 0);
         });
-        this._button.menu.addMenuItem(row);
+        menu.addMenuItem(row);
     }
 
     _cancelSliderTimer(setting) {
@@ -132,11 +165,20 @@ export default class MechrevoControl extends Extension {
             this.openPreferences();
         });
         this._button.menu.addMenuItem(this._curveInfo);
-        this._slider('键盘亮度', 'keyboard_brightness', 0, 4);
-        this._slider('红 R', 'keyboard_rgb', 0, 50, 0);
-        this._slider('绿 G', 'keyboard_rgb', 0, 50, 1);
-        this._slider('蓝 B', 'keyboard_rgb', 0, 50, 2);
+        this._keyboardMenu = new PopupMenu.PopupSubMenuMenuItem('键盘设置');
+        this._button.menu.addMenuItem(this._keyboardMenu);
+        const keyboardMenu = this._keyboardMenu.menu;
+        keyboardMenu.actor.style = 'border-left-width: 0; border-right-width: 0;';
+        this._slider('键盘亮度', 'keyboard_brightness', 0, 4, null, keyboardMenu);
+        this._slider('关灯时间', 'keyboard-idle-seconds', 0, 300, null, keyboardMenu);
+        this._slider('红 R', 'keyboard_rgb', 0, 50, 0, keyboardMenu);
+        this._slider('绿 G', 'keyboard_rgb', 0, 50, 1, keyboardMenu);
+        this._slider('蓝 B', 'keyboard_rgb', 0, 50, 2, keyboardMenu);
+        this._button.menu.connect('open-state-changed', (_menu, open) => {
+            if (!open) this._keyboardMenu.setSubmenuShown(false);
+        });
         this._choices('电池模式', 'charging_profile', [['high_capacity', '长效'], ['balanced', '平衡'], ['stationary', '工作站']]);
+
         this._feedback = this._row('');
         this._feedback.label.style = 'font-size: 0.9em; min-height: 22px;';
         this._details = new PopupMenu.PopupSubMenuMenuItem('更多信息');
@@ -212,15 +254,18 @@ export default class MechrevoControl extends Extension {
         }
         this._syncing = true;
         for (const e of this._sliders) {
-            const supported = v && v[e.setting] != null;
+            const local = e.setting === 'keyboard-idle-seconds';
+            const supported = local || (v && v[e.setting] != null);
             e.row.visible = !e.setting.startsWith('fan') || v?.fan_control === 'manual';
-            e.slider.reactive = Boolean(writable && supported);
+            e.slider.reactive = Boolean((local || writable) && supported);
             e.slider.can_focus = e.slider.reactive;
-            e.slider.opacity = this._bus === Gio.DBus.system && supported ? 255 : 120;
+            e.slider.opacity = (local || this._bus === Gio.DBus.system) && supported ? 255 : 120;
             if (!e.dirty && !e.dragging && supported) {
-                const n = e.channel === null ? Number(v[e.setting]) : Number(v[e.setting].split(' ')[e.channel]);
+                const n = local ? this._settings.get_uint(e.setting)
+                    : e.setting === 'keyboard_brightness' && this._keyboardIdle?.saved != null ? this._keyboardIdle.saved
+                    : e.channel === null ? Number(v[e.setting]) : Number(v[e.setting].split(' ')[e.channel]);
                 e.slider.value = Math.max(0, Math.min(1, (n - e.minimum) / (e.maximum - e.minimum)));
-                e.label.text = e.setting.startsWith('fan') ? `${n}%` : String(n);
+                e.label.text = this._sliderText(e.setting, n);
             }
         }
         this._syncing = false;
@@ -258,6 +303,7 @@ export default class MechrevoControl extends Extension {
         this._pending = true;
         const cancellable = this._cancellable;
         const bus = this._bus;
+        const brightnessRevision = this._brightnessRevision;
         bus.call(NAME, PATH, NAME, 'GetStatus', null, new GLib.VariantType('(s)'),
             Gio.DBusCallFlags.NONE, 5000, cancellable, (connection, result) => {
                 let reply, error;
@@ -275,7 +321,13 @@ export default class MechrevoControl extends Extension {
                     this._data = null;
                     this._label.text = '硬件离线';
                 } else {
-                    try { this._data = JSON.parse(reply.deep_unpack()[0]); }
+                    try {
+                        const data = JSON.parse(reply.deep_unpack()[0]);
+                        // A status read started before a write must not undo its newer brightness.
+                        if (brightnessRevision !== this._brightnessRevision && data.vendor && this._data?.vendor)
+                            data.vendor.keyboard_brightness = this._data.vendor.keyboard_brightness;
+                        this._data = data;
+                    }
                     catch (_e) { this._error = '硬件数据格式异常'; this._data = null; }
                 }
                 this._sync();
@@ -283,8 +335,17 @@ export default class MechrevoControl extends Extension {
     }
 
     _set(setting, value) {
+        if (setting === 'keyboard-idle-seconds') {
+            const seconds = Number(value);
+            if (!Number.isInteger(seconds) || seconds < 0 || seconds > 300) return;
+            this._settings.set_uint(setting, seconds);
+            for (const e of this._sliders) if (e.setting === setting) e.dirty = false;
+            this._sync();
+            return;
+        }
         if (!this._data?.vendor || this._bus !== Gio.DBus.system) return;
         if (this._writing) { this._queued.set(setting, value); return; }
+        if (this._keyboardIdle?.busy) { this._error = '键盘灯光正在切换，请稍后重试'; this._sync(); return; }
         this._writing = true;
         this._error = '';
         this._sync();
@@ -296,6 +357,10 @@ export default class MechrevoControl extends Extension {
                 try { connection.call_finish(result); } catch (e) { error = e; }
                 if (!this._active || this._cancellable !== cancellable) return;
                 this._writing = false;
+                if (!error && (setting === 'keyboard_brightness' || setting === 'control')) {
+                    this._keyboardIdle?.forget();
+                    this._brightnessRevision++;
+                }
                 if (!error && this._data?.vendor && setting !== 'charging_profile') {
                     this._data.vendor[setting] = ['keyboard_brightness', 'fan1_percent', 'fan2_percent'].includes(setting) ? Number(value) : value;
                 }
@@ -325,6 +390,13 @@ export default class MechrevoControl extends Extension {
 
     disable() {
         this._active = false;
+        if (this._idleTimer) GLib.source_remove(this._idleTimer);
+        this._idleTimer = null;
+        this._keyboardIdle?.stop();
+        this._keyboardIdle = null;
+        if (this._settingsChanged) this._settings.disconnect(this._settingsChanged);
+        this._settingsChanged = null;
+        this._settings = null;
         if (this._timer) GLib.source_remove(this._timer);
         this._timer = null;
         for (const timer of this._sliderTimers.values()) GLib.source_remove(timer);

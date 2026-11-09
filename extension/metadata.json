@@ -5,6 +5,7 @@
   "shell-version": [
     "48"
   ],
+  "settings-schema": "org.gnome.shell.extensions.mechrevo-control",
   "version": 20,
   "version-name": "1.1.0"
 }

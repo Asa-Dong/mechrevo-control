@@ -3,6 +3,7 @@
 set -eu
 project_dir=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$project_dir"
+glib-compile-schemas --strict extension/schemas
 output=${1:-"$project_dir/dist/ui"}
 mkdir -p "$output"
 output=$(CDPATH='' cd -- "$output" && pwd)

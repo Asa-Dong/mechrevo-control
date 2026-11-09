@@ -6,9 +6,10 @@ python3 scripts/version.py
 version=$(cat VERSION)
 "${ZIG:-zig}" build -Doptimize=ReleaseSafe
 mkdir -p dist
+glib-compile-schemas --strict extension/schemas
 # Rebuild the extension archive from an explicit manifest.
 rm -f dist/mechrevo-control@local.shell-extension.zip
-(cd extension && zip -q ../dist/mechrevo-control@local.shell-extension.zip metadata.json extension.js prefs.js curveEditor.js)
+(cd extension && zip -q ../dist/mechrevo-control@local.shell-extension.zip metadata.json extension.js prefs.js curveEditor.js keyboardIdle.js schemas/*.xml schemas/gschemas.compiled)
 cp zig-out/bin/mechrevo-control dist/mechrevo-control
 cp data/mechrevo-control.service dist/mechrevo-control.service
 cp data/mechrevo-control-system.service data/io.github.mechrevo.Control1.conf data/io.github.mechrevo.control.policy dist/

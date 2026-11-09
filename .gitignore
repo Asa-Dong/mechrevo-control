@@ -27,3 +27,5 @@ driver/modules.order
 *.core
 .env
 .env.*
+
+extension/schemas/gschemas.compiled
