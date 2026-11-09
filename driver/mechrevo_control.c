@@ -899,4 +899,4 @@ module_wmi_driver(mr_driver);
 /* No modalias: loading remains explicit while this hardware-specific driver matures. */
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MECHREVO X6xR55xK hardware monitor and explicit controls");
-MODULE_VERSION("1.2.0");
+MODULE_VERSION("1.3.0");
