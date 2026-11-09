@@ -102,6 +102,10 @@ gnome-extensions uninstall mechrevo-control@local
 - [开发与发布](CONTRIBUTING.md)
 - [后续验证事项](docs/PLAN.md)
 
+## 开发说明
+
+本项目由 **OpenAI Codex（AI 编程代理）** 根据项目维护者提出的需求开发，涵盖代码实现、问题排查、测试、文档整理和发布准备。项目维护者提供需求、反馈与本机硬件验证环境。
+
 ## 参考项目与致谢
 
 | 项目 | 本项目参考内容 |
