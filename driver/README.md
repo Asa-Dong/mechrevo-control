@@ -17,7 +17,7 @@
 | fan1_percent / fan2_percent | 0..100 | 独立指令百分比；写入即进入手动，启动从 EC 读取当前 PWM；非精确 RPM |
 | keyboard_brightness | 0..4 | 保留无关位并触发应用 |
 | keyboard_rgb | R G B，各 0..50 | 三通道串行写入并校验；支持全零 |
-| charging_profile | high_capacity / stationary | 固件配置，不是百分比阈值；实际充电行为仍待测 |
+| charging_profile | high_capacity / balanced / stationary | 固件配置，不是百分比阈值；实际充电行为仍待测 |
 | last_error | 不可写 | 最近控制错误，成功重新接管后清零 |
 
 曲线模式把两路 16 项温区表写入 0x0F00..0x0F5F，首项 duty=0 为固件启用条件，额外开启 0726.7、0727.6、07c5.7、07c6.2。温区下行阈值比上行低 3°C。不备份曲线表；写表期间不主动开启全速，成功后完全停止主机 PWM 刷新，由 EC 执行。切换性能模式（包括实体键）会先恢复曲线，再应用性能模式。用户显式恢复或切换风扇模式时退出自定义曲线；生命周期退出不写寄存器，不回写旧曲线表。表属于运行时 RAM，不是 BIOS Flash；尚未验证重启后保留，也不自动重放。
@@ -43,3 +43,5 @@ sudo rmmod mechrevo_control
 代码参考 TUXEDO Computers GmbH 的 tuxedo-drivers v4.25.0_rc（原协议实现版权 2020–2024 TUXEDO Computers GmbH，GPL-2.0-or-later），以及 sklynic/pkgbuild-mechrevo-driver-dkms-16-pro 的 af56c84451d6e003267a886183b7deb94ec4476a。本驱动选择 GPL-2.0-only 发布，许可正文见 COPYING；本项目诊断记录提供额外本机验证依据。不是完整 TUXEDO 驱动的直接打包。
 
 固件 RAM 曲线补充协议参考：https://github.com/nemoiwkryang/Open-Mechrevo-FanSlider ，固定提交 c6665cfc15b7ceb0d08111ea317d9ceccc2feb2e（MIT）。本机测试发现 TUXEDO 的首 duty 非零方案不会启用该 EC 的自定义温区表；补全启用条件后已验证自主维持和温度跨档。
+
+均衡充电档使用既有 0x07A6 bits 4–5 的 0x10 编码，与读取路径一致；本次仅完成代码和构建验证，尚未在本机验证该档写入及实际充电行为。

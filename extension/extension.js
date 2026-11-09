@@ -136,7 +136,7 @@ export default class MechrevoControl extends Extension {
         this._slider('红 R', 'keyboard_rgb', 0, 50, 0);
         this._slider('绿 G', 'keyboard_rgb', 0, 50, 1);
         this._slider('蓝 B', 'keyboard_rgb', 0, 50, 2);
-        this._choices('充电配置', 'charging_profile', [['high_capacity', '高容量'], ['stationary', '固定使用']]);
+        this._choices('电池模式', 'charging_profile', [['high_capacity', '长效'], ['balanced', '平衡'], ['stationary', '工作站']]);
         this._feedback = this._row('');
         this._feedback.label.style = 'font-size: 0.9em; min-height: 22px;';
         this._details = new PopupMenu.PopupSubMenuMenuItem('更多信息');
@@ -225,7 +225,7 @@ export default class MechrevoControl extends Extension {
         }
         this._syncing = false;
         this._curveInfo.visible = v?.fan_control === 'curve';
-        const chargeProfile = {high_capacity: '高容量', stationary: '固定使用'}[v?.charging_profile];
+        const chargeProfile = {high_capacity: '长效', balanced: '平衡', stationary: '工作站'}[v?.charging_profile];
         this._chargeDetail.label.text = chargeProfile
             ? `充电：${chargeProfile} · 实际限充效果待验证`
             : '充电配置不可用';

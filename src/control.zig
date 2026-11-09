@@ -20,7 +20,7 @@ pub fn find(a: A, root: []const u8) !?[]const u8 {
 pub fn valid(key: []const u8, value: []const u8) bool {
     if (std.mem.eql(u8, key, "control")) return std.mem.eql(u8, value, "release");
     if (std.mem.eql(u8, key, "mode")) return oneOf(value, &.{ "office", "balanced", "turbo" });
-    if (std.mem.eql(u8, key, "charging_profile")) return oneOf(value, &.{ "high_capacity", "stationary" });
+    if (std.mem.eql(u8, key, "charging_profile")) return oneOf(value, &.{ "high_capacity", "balanced", "stationary" });
     if (std.mem.eql(u8, key, "fan_control")) return oneOf(value, &.{ "auto", "manual", "curve", "boost" });
     if (std.mem.eql(u8, key, "fan1_percent") or std.mem.eql(u8, key, "fan2_percent")) {
         if (value.len == 0 or value.len > 3) return false;
@@ -96,7 +96,7 @@ test "control inputs cannot address arbitrary files or unverified modes" {
     try std.testing.expect(!valid("../control", "acquire"));
     try std.testing.expect(!valid("control", "acquire"));
     try std.testing.expect(!valid("fan_boost", "1"));
-    try std.testing.expect(!valid("charging_profile", "balanced"));
+    try std.testing.expect(valid("charging_profile", "balanced"));
     try std.testing.expect(!valid("keyboard_brightness", "5"));
     try std.testing.expect(!valid("keyboard_rgb", "50 0 0 extra"));
     try std.testing.expect(valid("keyboard_rgb", "0 0 0"));

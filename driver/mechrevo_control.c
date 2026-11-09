@@ -588,10 +588,12 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 	} else if (!strcmp(attr->attr.name, "charging_profile")) {
 		if (sysfs_streq(buf, "high_capacity"))
 			v = 0;
+		else if (sysfs_streq(buf, "balanced"))
+			v = 0x10;
 		else if (sysfs_streq(buf, "stationary"))
 			v = 0x20;
 		else
-			return -EINVAL; /* balanced not yet physically validated */
+			return -EINVAL;
 		kind = DIRTY_CHARGE;
 	} else {
 		if (sscanf(buf, "%u %u %u %c", &rgb[0], &rgb[1], &rgb[2], &extra) != 3 ||
