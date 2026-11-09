@@ -1,0 +1,27 @@
+BEFORE {'mode': 'office', 'fan_control': 'curve', 'fan_curve': '0 0 37 57 100 0 0 41 72 100', 'fan1_percent': '25', 'fan2_percent': '0'}
+auto -> curve {'fan_control': 'curve', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '0', 'fan2_input': '0', 'temp1_input': '48000', 'last_error': '0'}
+auto -> curve {'fan_control': 'curve', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '0', 'fan2_input': '0', 'temp1_input': '48000', 'last_error': '0'}
+auto -> curve {'fan_control': 'curve', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '0', 'fan2_input': '0', 'temp1_input': '50000', 'last_error': '0'}
+auto -> curve {'fan_control': 'curve', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '0', 'fan2_input': '0', 'temp1_input': '50000', 'last_error': '0'}
+manual zero {'fan_control': 'manual', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '1506', 'fan2_input': '1599', 'temp1_input': '51000', 'last_error': '0'}
+manual zero {'fan_control': 'manual', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '1537', 'fan2_input': '1161', 'temp1_input': '50000', 'last_error': '0'}
+manual zero {'fan_control': 'manual', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '1487', 'fan2_input': '0', 'temp1_input': '50000', 'last_error': '0'}
+manual zero {'fan_control': 'manual', 'fan1_percent': '0', 'fan2_percent': '0', 'fan1_input': '1517', 'fan2_input': '0', 'temp1_input': '50000', 'last_error': '0'}
+manual zero -> curve {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1496', 'fan2_input': '1588', 'temp1_input': '51000', 'last_error': '0'}
+manual zero -> curve {'fan_control': 'curve', 'fan1_percent': '26', 'fan2_percent': '25', 'fan1_input': '1563', 'fan2_input': '1583', 'temp1_input': '51000', 'last_error': '0'}
+manual zero -> curve {'fan_control': 'curve', 'fan1_percent': '35', 'fan2_percent': '25', 'fan1_input': '2030', 'fan2_input': '1570', 'temp1_input': '50000', 'last_error': '0'}
+manual zero -> curve {'fan_control': 'curve', 'fan1_percent': '37', 'fan2_percent': '25', 'fan1_input': '2175', 'fan2_input': '1563', 'temp1_input': '49000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '43', 'fan2_percent': '34', 'fan1_input': '2439', 'fan2_input': '2085', 'temp1_input': '49000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '52', 'fan2_percent': '43', 'fan1_input': '2848', 'fan2_input': '2542', 'temp1_input': '48000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '60', 'fan2_percent': '52', 'fan1_input': '3232', 'fan2_input': '2965', 'temp1_input': '48000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '60', 'fan2_percent': '60', 'fan1_input': '3276', 'fan2_input': '3417', 'temp1_input': '47000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '60', 'fan2_percent': '60', 'fan1_input': '3276', 'fan2_input': '3422', 'temp1_input': '46000', 'last_error': '0'}
+curve 60 {'fan_control': 'curve', 'fan1_percent': '60', 'fan2_percent': '60', 'fan1_input': '3272', 'fan2_input': '3428', 'temp1_input': '46000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '47', 'fan2_percent': '47', 'fan1_input': '2753', 'fan2_input': '2875', 'temp1_input': '45000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '38', 'fan2_percent': '38', 'fan1_input': '2331', 'fan2_input': '2433', 'temp1_input': '45000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '30', 'fan2_percent': '30', 'fan1_input': '1883', 'fan2_input': '1970', 'temp1_input': '44000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1492', 'fan2_input': '1578', 'temp1_input': '44000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1495', 'fan2_input': '1569', 'temp1_input': '44000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1493', 'fan2_input': '1561', 'temp1_input': '44000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1492', 'fan2_input': '1557', 'temp1_input': '44000', 'last_error': '0'}
+curve 60 -> original zero {'fan_control': 'curve', 'fan1_percent': '25', 'fan2_percent': '25', 'fan1_input': '1495', 'fan2_input': '1557', 'temp1_input': '44000', 'last_error': '0'}

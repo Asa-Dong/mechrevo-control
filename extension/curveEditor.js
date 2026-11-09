@@ -6,7 +6,7 @@ import GLib from 'gi://GLib';
 const NAME = 'io.github.mechrevo.Control1';
 const PATH = '/io/github/mechrevo/Control1';
 export const DEFAULTS = [30, 40, 60, 80, 100, 30, 40, 60, 80, 100];
-export function validCurve(values, minimum = 20) {
+export function validCurve(values, minimum = 0) {
     return values.length === 10 && values.every((n, i) => Number.isInteger(n) && n >= minimum && n <= 100 &&
         (i % 5 === 0 || n >= values[i - 1]));
 }
@@ -25,8 +25,11 @@ export class CurveEditor {
         this.busy = false;
         this.ready = false;
         this.closed = false;
-        this.spins = [];
-        window.set_default_size(660, 820);
+        this.points = [];
+        this.charts = [];
+        this.drags = [];
+        this.dragPoint = null;
+        window.set_default_size(720, 740);
         window.title = '风扇曲线';
         window.connect('close-request', () => {
             if (this.busy) return true;
@@ -35,36 +38,44 @@ export class CurveEditor {
         });
         const page = new Adw.PreferencesPage({title: '风扇曲线', icon_name: 'preferences-system-symbolic'});
         window.add(page);
-        const chartGroup = new Adw.PreferencesGroup({title: '温度 → 风扇转速',
-            description: '蓝色：CPU 风扇 · 橙色：GPU 风扇。固定温区，百分比随温度不递减。'});
-        page.add(chartGroup);
-        this.chart = new Gtk.DrawingArea({content_height: 140, hexpand: true});
-        this.chart.set_draw_func((_area, cr, w, h) => this.draw(cr, w, h));
-        chartGroup.add(this.chart);
-        const group = new Adw.PreferencesGroup({title: '两路独立设置',
-            description: '每档 20–100%；更高温区沿用末档值。本机实测低于 25% 时仍输出约 25%。降温时低 3°C 换档，避免频繁变速。'});
-        page.add(group);
-        for (let i = 0; i < 5; i++) {
-            const row = new Adw.ActionRow({title: `${40 + i * 10}°C 温区上限`});
-            for (let fan = 0; fan < 2; fan++) {
-                const spin = new Gtk.SpinButton({adjustment: new Gtk.Adjustment({lower: 20, upper: 100, step_increment: 5, page_increment: 10}),
-                    numeric: true, digits: 0, valign: Gtk.Align.CENTER, width_chars: 3});
-                spin.set_tooltip_text(`风扇 ${fan + 1} · ${40 + i * 10}°C · 百分比`);
-                const box = new Gtk.Box({spacing: 6, valign: Gtk.Align.CENTER});
-                box.append(new Gtk.Label({label: `${fan + 1}`}));
-                box.append(spin);
-                box.append(new Gtk.Label({label: '%'}));
-                row.add_suffix(box);
-                this.spins[fan * 5 + i] = spin;
-                spin.connect('value-changed', () => {
-                    this.chart.queue_draw();
-                    if (!this.loading) this.feedback.label = validCurve(this.values()) ? '有未应用的修改' : '每路百分比需随温度不递减';
+        for (let fan = 0; fan < 2; fan++) {
+            const name = fan === 0 ? 'CPU 风扇' : 'GPU 风扇';
+            const group = new Adw.PreferencesGroup({title: name,
+                description: '上下拖动圆点调节 0–100%。温区固定，转速随温度不递减。'});
+            page.add(group);
+            const chart = new Gtk.DrawingArea({content_height: 160, hexpand: true});
+            chart.set_tooltip_text(`${name}：拖动圆点调整百分比，点击应用后生效`);
+            chart.set_draw_func((_area, cr, w, h) => this.draw(cr, w, h, fan));
+            this.charts.push(chart);
+            group.add(chart);
+            const drag = new Gtk.GestureDrag({button: 1, propagation_phase: Gtk.PropagationPhase.CAPTURE});
+            drag.connect('drag-begin', (gesture, x, y) => {
+                if (!this.beginDrag(fan, x, y)) {
+                    gesture.set_state(Gtk.EventSequenceState.DENIED);
+                    return;
+                }
+                gesture.set_state(Gtk.EventSequenceState.CLAIMED);
+            });
+            drag.connect('drag-update', (_gesture, _dx, dy) => this.updateDrag(fan, dy));
+            drag.connect('drag-end', (_gesture, _dx, dy) => {
+                this.updateDrag(fan, dy);
+                this.dragPoint = null;
+            });
+            drag.connect('cancel', () => { this.dragPoint = null; });
+            chart.add_controller(drag);
+            this.drags.push(drag);
+            for (let i = 0; i < 5; i++) {
+                const point = new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 1});
+                this.points[fan * 5 + i] = point;
+                point.connect('value-changed', () => {
+                    chart.queue_draw();
+                    if (!this.loading && this.feedback)
+                        this.feedback.label = validCurve(this.values()) ? '有未应用的修改' : '每路百分比需随温度不递减';
                     this.sync();
                 });
             }
-            group.add(row);
         }
-        const actions = new Adw.PreferencesGroup({description: '应用后立即切换到曲线模式，由 EC 自主调速。切换性能模式或恢复设置会退出曲线；不保证重启保留。'});
+        const actions = new Adw.PreferencesGroup({description: '每路 5 个温区，更高温度沿用末档值。0% 不保证停转，实际转速以读数为准。应用后切换到曲线模式，保存并在服务启动时恢复；可与三档性能模式同时使用；恢复默认值会退出曲线。'});
         page.add(actions);
         const buttons = new Gtk.Box({spacing: 10, homogeneous: true});
         this.reload = new Gtk.Button({label: '重新读取'});
@@ -80,17 +91,17 @@ export class CurveEditor {
         this.populate(DEFAULTS);
         this.load();
     }
-    values() { return this.spins.map(s => s.get_value_as_int()); }
+    values() { return this.points.map(s => Math.round(s.get_value())); }
     populate(values) {
         this.loading = true;
-        this.spins.forEach((s, i) => s.set_value(values[i]));
+        this.points.forEach((s, i) => s.set_value(values[i]));
         this.loading = false;
         this.sync();
-        this.chart.queue_draw();
+        this.charts.forEach(chart => chart.queue_draw());
     }
     sync() {
         if (!this.applyButton) return;
-        this.spins.forEach((s, i) => { s.sensitive = this.ready && !this.busy; });
+        this.charts.forEach(chart => { chart.sensitive = this.ready && !this.busy; });
         this.applyButton.sensitive = this.ready && !this.busy && validCurve(this.values());
         this.defaults.sensitive = this.ready && !this.busy;
         this.reload.sensitive = !this.busy;
@@ -111,12 +122,11 @@ export class CurveEditor {
             if (this.closed) return;
             this.ready = true;
             this.populate(current.values);
-            this.feedback.label = current.values.some(v => v < 20) ? '已读取；低于 20% 的值在编辑草稿中显示为 20%，点击应用后才写入' : current.mode === 'curve' ? '已读取 · 曲线正在生效' : '已读取 · 当前未启用曲线';
+            this.feedback.label = current.mode === 'curve' ? '已读取 · 曲线正在生效' : '已读取 · 当前未启用曲线';
         } catch (e) { this.ready = false; this.feedback.label = `读取失败：${e.message}`; }
         finally { this.busy = false; this.sync(); }
     }
     async apply() {
-        this.spins.forEach(s => s.update());
         const values = this.values();
         if (this.busy || !this.ready || !validCurve(values)) return;
         this.busy = true;
@@ -130,29 +140,68 @@ export class CurveEditor {
         } catch (e) { this.feedback.label = `应用未确认：${e.message}。可重新读取当前状态`; }
         finally { this.busy = false; this.sync(); }
     }
-    draw(cr, w, h) {
-        const left = 44, right = w - 18, top = 16, bottom = h - 30;
-        const x = t => left + (t - 20) / 70 * (right - left);
-        const y = p => bottom - p / 100 * (bottom - top);
+    geometry(w, h) {
+        const left = 44, right = Math.max(left + 1, w - 24), top = 24, bottom = Math.max(top + 1, h - 30);
+        return {left, right, top, bottom,
+            x: t => left + (t - 20) / 70 * (right - left),
+            y: p => bottom - p / 100 * (bottom - top)};
+    }
+    beginDrag(fan, x, y) {
+        this.dragPoint = null;
+        if (!this.ready || this.busy) return false;
+        const chart = this.charts[fan];
+        const g = this.geometry(chart.get_width(), chart.get_height());
+        const values = this.values();
+        let nearest = -1, distance = 20;
+        for (let i = 0; i < 5; i++) {
+            const d = Math.hypot(x - g.x(40 + i * 10), y - g.y(values[fan * 5 + i]));
+            if (d < distance) { nearest = i; distance = d; }
+        }
+        if (nearest < 0) return false;
+        this.dragPoint = {fan, index: nearest, y, height: g.bottom - g.top, bottom: g.bottom};
+        return true;
+    }
+    updateDrag(fan, dy) {
+        const point = this.dragPoint;
+        if (!point || point.fan !== fan || !this.ready || this.busy) return;
+        const index = fan * 5 + point.index;
+        const values = this.values();
+        const lower = point.index === 0 ? 0 : values[index - 1];
+        const percent = Math.round((point.bottom - point.y - dy) / point.height * 100);
+        const target = Math.max(lower, Math.min(100, percent));
+        // Raise later nodes first so every intermediate curve remains valid.
+        for (let i = fan * 5 + 4; i > index; i--) {
+            if (values[i] < target) this.points[i].set_value(target);
+        }
+        this.points[index].set_value(target);
+    }
+    draw(cr, w, h, fan) {
+        const {left, right, top, bottom, x, y} = this.geometry(w, h);
+        const color = this.charts[fan].get_color();
         cr.setLineWidth(1);
-        cr.setSourceRGBA(0.5, 0.5, 0.5, 0.45);
-        for (const p of [0, 50, 100]) {
+        cr.setSourceRGBA(color.red, color.green, color.blue, 0.3);
+        for (const p of [0, 25, 50, 75, 100]) {
             cr.moveTo(left, y(p)); cr.lineTo(right, y(p)); cr.stroke();
             cr.moveTo(4, y(p) + 4); cr.showText(`${p}%`);
         }
-        for (const t of [20, 40, 60, 80]) { cr.moveTo(x(t) - 8, h - 8); cr.showText(`${t}°`); }
-        if (this.spins.length !== 10 || this.spins.some(s => !s)) return;
-        const values = this.values();
-        for (let fan = 0; fan < 2; fan++) {
-            cr.setSourceRGB(...(fan ? [0.95, 0.55, 0.15] : [0.2, 0.52, 0.9]));
-            cr.setLineWidth(fan ? 2 : 3);
-            cr.setDash(fan ? [6, 3] : [], 0);
-            cr.moveTo(x(20), y(values[fan * 5]));
-            for (let i = 0; i < 5; i++) {
-                cr.lineTo(x(40 + i * 10), y(values[fan * 5 + i]));
-                if (i < 4) cr.lineTo(x(40 + i * 10), y(values[fan * 5 + i + 1]));
-            }
-            cr.lineTo(x(90), y(values[fan * 5 + 4])); cr.stroke();
+        for (const t of [20, 40, 50, 60, 70, 80, 90]) {
+            cr.moveTo(x(t), top); cr.lineTo(x(t), bottom); cr.stroke();
+            cr.moveTo(x(t) - 10, h - 8); cr.showText(`${t}°`);
+        }
+        if (this.points.length !== 10 || this.points.some(spin => !spin)) return;
+        const values = this.values().slice(fan * 5, fan * 5 + 5);
+        cr.setSourceRGB(...(fan ? [0.92, 0.48, 0.12] : [0.2, 0.52, 0.9]));
+        cr.setLineWidth(2.5);
+        cr.moveTo(x(20), y(0));
+        for (let i = 0; i < 5; i++) {
+            cr.lineTo(x(40 + i * 10), y(i === 0 ? 0 : values[i - 1]));
+            cr.lineTo(x(40 + i * 10), y(values[i]));
+        }
+        cr.lineTo(x(90), y(values[4])); cr.stroke();
+        for (let i = 0; i < 5; i++) {
+            cr.arc(x(40 + i * 10), y(values[i]), 7, 0, Math.PI * 2); cr.fill();
+            cr.moveTo(x(40 + i * 10) - 12, y(values[i]) - 11);
+            cr.showText(`${values[i]}%`);
         }
     }
 }

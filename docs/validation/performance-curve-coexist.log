@@ -1,0 +1,11 @@
+target 80 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '56', 'fan2_percent': '56', 'fan1_input': '3111', 'fan2_input': '3257', 'temp1_input': '44000', 'last_error': '0'}
+target 80 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '65', 'fan2_percent': '66', 'fan1_input': '3494', 'fan2_input': '3648', 'temp1_input': '44000', 'last_error': '0'}
+target 80 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '74', 'fan2_percent': '74', 'fan1_input': '3829', 'fan2_input': '3993', 'temp1_input': '44000', 'last_error': '0'}
+target 80 {'mode': 'office', 'fan_control': 'curve', 'fan1_percent': '80', 'fan2_percent': '80', 'fan1_input': '4099', 'fan2_input': '4227', 'temp1_input': '43000', 'last_error': '0'}
+target 80 {'mode': 'balanced', 'fan_control': 'curve', 'fan1_percent': '80', 'fan2_percent': '80', 'fan1_input': '4091', 'fan2_input': '4236', 'temp1_input': '43000', 'last_error': '0'}
+target 80 {'mode': 'turbo', 'fan_control': 'curve', 'fan1_percent': '80', 'fan2_percent': '80', 'fan1_input': '4099', 'fan2_input': '4244', 'temp1_input': '43000', 'last_error': '0'}
+target 40 {'mode': 'turbo', 'fan_control': 'curve', 'fan1_percent': '64', 'fan2_percent': '64', 'fan1_input': '3500', 'fan2_input': '3636', 'temp1_input': '43000', 'last_error': '0'}
+target 40 {'mode': 'turbo', 'fan_control': 'curve', 'fan1_percent': '55', 'fan2_percent': '55', 'fan1_input': '3138', 'fan2_input': '3267', 'temp1_input': '42000', 'last_error': '0'}
+target 40 {'mode': 'turbo', 'fan_control': 'curve', 'fan1_percent': '46', 'fan2_percent': '46', 'fan1_input': '2655', 'fan2_input': '2789', 'temp1_input': '42000', 'last_error': '0'}
+target 40 {'mode': 'turbo', 'fan_control': 'curve', 'fan1_percent': '40', 'fan2_percent': '40', 'fan1_input': '2326', 'fan2_input': '2455', 'temp1_input': '42000', 'last_error': '0'}
+PASS: all three modes coexist with actual curve PWM; upward/downward convergence

@@ -42,7 +42,7 @@ set_value fan_control manual
 test "$(cat "$hw/fan_control")" = manual
 set_value fan_control curve
 set_value mode balanced
-test "$(cat "$hw/fan_control")" = auto
+test "$(cat "$hw/fan_control")" = curve
 test "$(cat "$hw/mode")" = balanced
 set_value control release
 after=$(cat "$hw/mode" "$hw/keyboard_brightness" "$hw/keyboard_rgb")

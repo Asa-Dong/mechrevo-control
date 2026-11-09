@@ -28,3 +28,13 @@ sudo env MECHREVO_HARDWARE_TEST=1 sh tests/curve-persistence.sh
 历史实测在 `docs/validation/`；描述旧版本的“退出恢复”等语义不适用于 1.0.0。每次验证需区分服务重启、驱动重载、实际睡眠和整机重启。
 
 `gpu-runtime-pm.py` 要求当前系统服务已更新、独显空闲且无活动显示输出。临时将 NVIDIA PCI 电源策略设为 `on` 再设为 `auto`，每秒查询 D-Bus，验证两轮唤醒有读数、自动进入 D3cold、休眠持续十秒且读数为 null；最后恢复原策略。不执行整机休眠，不停止桌面。
+
+`sh scripts/test-curve-ui.sh` 在独立 GNOME 会话验证双图表、真实鼠标拖动至 0%、两路隔离、输入校验和应用读回；硬件写入由测试桩替代，截图保存在 `dist/curve-ui/`。
+
+性能与曲线并存实机验证（会暂时停止服务并切换性能/风扇设置，结束恢复原设置）：
+
+```sh
+sudo MECHREVO_HARDWARE_TEST=1 python3 tests/performance-curve.py
+```
+
+验证三档性能模式与曲线状态同时保留，并等待两路实际 PWM 收敛到 80%，再降到 40%；不把状态位读回当成风扇执行成功。固件平滑调速可能需要数十秒。

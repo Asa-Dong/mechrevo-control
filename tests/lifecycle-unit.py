@@ -26,6 +26,7 @@ prefix = r'''
 #include <errno.h>
 #define BIT(n) (1U << (n))
 #define DIRTY_GATE BIT(6)
+#define DIRTY_CURVE BIT(5)
 #define NOTIFY_DONE 0
 #define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
 struct device { void *data; };
@@ -35,12 +36,12 @@ struct mr {
     int lock, fan_work;
     struct notifier_block reboot;
     struct device *dev, *hwmon;
-    bool active, suspended, removing, manual_fans, curve_fans, curve_valid;
+    bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy;
     unsigned int fan_target[2], curve_points[10], dirty, mode, light, rgb[3], charge;
     int last_error;
 };
 static unsigned int ec[65536], pwm[2];
-static int reads, writes, cancelled;
+static int reads, writes, cancelled, pwm_writes[2];
 static bool failed_read;
 static void *dev_get_drvdata(struct device *dev) { return dev->data; }
 static void mutex_lock(int *lock) { (void)lock; }
@@ -52,10 +53,17 @@ static int rd(struct mr *d, unsigned short reg, unsigned int *v) {
     (void)d; reads++; if (failed_read) return -EIO; *v = ec[reg]; return 0;
 }
 static int fan_io(unsigned int ch, unsigned int *v, bool write) {
-    assert(ch < 2); if (write) { writes++; pwm[ch] = *v; } else { reads++; *v = pwm[ch]; } return 0;
+    assert(ch < 2); if (write) { writes++; pwm_writes[ch]++; pwm[ch] = *v; } else { reads++; *v = pwm[ch]; } return 0;
 }
 static int mask(struct mr *d, unsigned short reg, unsigned int bits, unsigned int value) {
     (void)d; writes++; ec[reg] = (ec[reg] & ~bits) | value; return 0;
+}
+static int fan_restore(struct mr *d) { d->manual_fans = false; return 0; }
+static int curve_mask(unsigned int reg, unsigned int bits, unsigned int value) {
+    writes++; ec[reg] = (ec[reg] & ~bits) | (value & bits); return 0;
+}
+static int curve_byte(struct mr *d, unsigned int reg, unsigned int value) {
+    (void)d; writes++; ec[reg] = value; return 0;
 }
 '''
 main = r'''
@@ -66,6 +74,7 @@ int main(void) {
     ec[0x0741] = 0x81; ec[0x0726] = 0x80; ec[0x0727] = 0x40; ec[0x07c6] = 4;
     ec[0x078c] = 4 << 5; ec[0x0769] = 20; ec[0x076a] = 30; ec[0x076b] = 40; ec[0x07a6] = 0x20;
     pwm[0] = 70; pwm[1] = 110;
+    ec[0x0f06] = ec[0x0f36] = 85;
     for (int i = 0; i < 10; i++) {
         ec[0x0f21 + (i / 5) * 48 + i % 5] = 40 + (i % 5) * 20;
         ec[0x0f01 + (i / 5) * 48 + i % 5] = 40 + (i % 5) * 10;
@@ -92,11 +101,37 @@ int main(void) {
     failed_read = true;
     assert(resume_device(&dev.dev) == -EIO && d.last_error == -EIO);
     assert(!writes);
+    failed_read = false;
+    unsigned int nodes[] = {0, 0, 45, 72, 100, 0, 0, 41, 72, 100};
+    memcpy(d.curve_points, nodes, sizeof(nodes));
+    d.curve_valid = true; d.curve_fans = true;
+    ec[0x0751] = 0xa0;
+    ec[0x043e] = 65;
+    pwm[0] = 77; pwm[1] = 88;
+    int cpu_writes = pwm_writes[0], gpu_writes = pwm_writes[1];
+    assert(curve_apply(&d) == 0 && !d.curve_legacy);
+    assert(pwm[0] == 77 && pwm[1] == 88);
+    assert(pwm_writes[0] == cpu_writes && pwm_writes[1] == gpu_writes);
+    assert(ec[0x0751] == 0xa0);
+    for (int fan = 0; fan < 2; fan++) {
+        unsigned int offset = fan * 48;
+        assert(ec[0x0f21 + offset] == 0 && ec[0x0f01 + offset] == 40);
+        /* At 55C the outgoing 50C node still requests zero; at 65C
+         * the outgoing 60C node requests its own nonzero percentage. */
+        for (int temp = 21; temp < 100; temp++) {
+            int slot = 0;
+            while ((unsigned int)temp >= ec[0x0f00 + offset + slot]) slot++;
+            unsigned int wanted = temp < 40 ? 0 : nodes[fan * 5 + (temp >= 80 ? 4 : (temp - 40) / 10)];
+            assert(ec[0x0f20 + offset + slot] == wanted * 2);
+        }
+    }
+    assert(read_fans(&d) == 0 && d.curve_valid && !d.curve_legacy);
+    assert(!memcmp(d.curve_points, nodes, sizeof(nodes)));
     puts("PASS: suspend/resume/reboot/unload preserve EC; retained state can be acquired; invalid reads reported");
 }
 '''
 with tempfile.TemporaryDirectory() as tmp:
     c = Path(tmp) / 'lifecycle.c'
-    c.write_text(prefix + '\n'.join(function(n) for n in ['read_fans', 'acquire', 'reboot_device', 'remove_device', 'suspend_device', 'resume_device']) + main)
+    c.write_text(prefix + '\n'.join(function(n) for n in ['read_fans', 'curve_apply', 'acquire', 'reboot_device', 'remove_device', 'suspend_device', 'resume_device']) + main)
     subprocess.run(['cc', '-std=c11', '-Wall', '-Wextra', '-Wno-unused-parameter', '-Wno-sign-compare', '-Werror', str(c), '-o', str(Path(tmp) / 'test')], check=True)
     subprocess.run([str(Path(tmp) / 'test')], check=True)

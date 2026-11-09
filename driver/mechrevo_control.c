@@ -29,7 +29,7 @@ struct mr {
 	struct device *dev, *hwmon;
 	struct delayed_work fan_work;
 	struct notifier_block reboot;
-	bool active, suspended, removing, manual_fans, curve_fans, curve_valid;
+	bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy;
 	unsigned int fan_target[2];
 	unsigned int curve_points[10];
 	unsigned int dirty, mode, light, rgb[3], charge;
@@ -170,7 +170,7 @@ static int curve_restore(struct mr *d)
 		return 0;
 	if (curve_mask(0x07c6, 4, 0) || curve_mask(0x0727, 0x40, 0) ||
 	    curve_mask(0x0726, 0x80, 0) || curve_mask(0x07c5, 0x80, 0) ||
-	    curve_mask(0x0751, 0xf0, d->mode))
+	    curve_mask(0x0751, 0x40, d->mode))
 		return -EIO;
 	d->curve_fans = false;
 	d->dirty &= ~DIRTY_CURVE;
@@ -179,7 +179,7 @@ static int curve_restore(struct mr *d)
 /* Read existing EC state; no register writes and no automatic PWM replay. */
 static int read_fans(struct mr *d)
 {
-	unsigned int gate, flags, enabled, value, points[10];
+	unsigned int gate, flags, enabled, value, points[10], base = 1;
 	int i;
 	if (rd(d, 0x0726, &flags) || rd(d, 0x0727, &enabled) || rd(d, 0x07c6, &gate))
 		return -EIO;
@@ -191,11 +191,21 @@ static int read_fans(struct mr *d)
 	}
 	d->curve_valid = false;
 	for (i = 0; i < 10; i++) {
-		if (rd(d, 0x0f01 + (i / 5) * 48 + i % 5, &value))
+		if (i % 5 == 0) {
+			if (rd(d, 0x0f06 + (i / 5) * 48, &value))
+				return -EIO;
+			if (value != 85 && value != 90)
+				return 0;
+			if (i && d->curve_legacy != (value == 85))
+				return 0;
+			d->curve_legacy = value == 85;
+			base = d->curve_legacy ? 1 : 2;
+		}
+		if (rd(d, 0x0f00 + base + (i / 5) * 48 + i % 5, &value))
 			return -EIO;
-		if (value != 40 + (i % 5) * 10)
+		if (value != 30 + base * 10 + (i % 5) * 10)
 			return 0;
-		if (rd(d, 0x0f21 + (i / 5) * 48 + i % 5, &value))
+		if (rd(d, 0x0f20 + base + (i / 5) * 48 + i % 5, &value))
 			return -EIO;
 		if (value > 200 || (value & 1))
 			return 0;
@@ -223,14 +233,16 @@ static int curve_apply(struct mr *d)
 			return ret;
 	}
 	d->dirty |= DIRTY_CURVE;
-	if (curve_mask(0x0751, 0xf0, 0) || curve_mask(0x0726, 0x80, 0x80) ||
+	/* Keep the performance bits (0xb0); only disable full-speed boost. */
+	if (curve_mask(0x0751, 0x40, 0) || curve_mask(0x0726, 0x80, 0x80) ||
 	    curve_mask(0x0727, 0x40, 0x40) || curve_mask(0x07c5, 0x80, 0x80) ||
 	    curve_mask(0x07c6, 4, 0))
 		return -EIO;
 	for (i = 0; i < 2; i++)
 		for (j = 0; j < 16; j++) {
-			up = j == 0 ? 20 : j < 6 ? 30 + j * 10 : j == 15 ? 255 : 80 + (j - 5) * 5;
-			duty = j == 0 ? 0 : d->curve_points[i * 5 + (j < 6 ? j - 1 : 4)] * 2;
+			/* Entry temperatures are upper bounds; UI nodes start a bin. */
+			up = j == 0 ? 20 : j < 7 ? 30 + j * 10 : j == 15 ? 255 : 90 + (j - 6) * 5;
+			duty = j < 2 ? 0 : d->curve_points[i * 5 + (j < 7 ? j - 2 : 4)] * 2;
 			if (curve_byte(d, 0x0f00 + i * 48 + j, up))
 				return -EIO;
 			if (j < 15 && curve_byte(d, 0x0f10 + i * 48 + j + 1, up - 3))
@@ -240,8 +252,9 @@ static int curve_apply(struct mr *d)
 		}
 	if (curve_mask(0x07c6, 4, 4) || curve_mask(0x0751, 0x40, 0))
 		return -EIO;
-	/* No PWM writes or host temperature loop while curve_fans is true. */
+	/* No immediate PWM writes or host temperature loop in curve mode. */
 	d->curve_fans = true;
+	d->curve_legacy = false;
 	d->manual_fans = false;
 	/* Reject a firmware gate loss rather than silently claiming curve control. */
 	if (rd(d, 0x07c6, &v) || !(v & 4))
@@ -359,7 +372,7 @@ static int acquire(struct mr *d)
 		return -EIO;
 	if (rd(d, 0x0751, &d->mode))
 		return -EIO;
-	/* Custom curves use mode bits 0; office is the explicit reset fallback. */
+	/* Legacy curves cleared mode bits; office is their explicit reset fallback. */
 	if (d->curve_fans && !(d->mode & 0xb0))
 		d->mode = 0xa0;
 	else if ((d->mode & 0xb0) != 0xa0 && (d->mode & 0xb0) != 0x20 && (d->mode & 0xb0) != 0x30)
@@ -606,7 +619,8 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 	if (ret)
 		goto out;
 	if (kind == DIRTY_CURVE) {
-		if (d->curve_fans && !memcmp(d->curve_points, points, sizeof(points))) {
+		if (d->curve_fans && !d->curve_legacy &&
+		    !memcmp(d->curve_points, points, sizeof(points))) {
 			ret = 0;
 		} else {
 			memcpy(d->curve_points, points, sizeof(points));
@@ -620,7 +634,7 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 		} else if (v == 1)
 			ret = fan_manual(d);
 		else if (v == 3)
-			ret = d->curve_fans ? 0 : curve_apply(d);
+			ret = d->curve_fans && !d->curve_legacy ? 0 : curve_apply(d);
 		else {
 			ret = curve_restore(d);
 			if (!ret)
@@ -630,21 +644,18 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 				ret = mask(d, 0x0751, 0x40, v == 2 ? 0x40 : 0);
 		}
 	} else {
-		if (kind == DIRTY_MODE && curve_restore(d)) {
-			ret = -EIO;
-			goto failed;
-		}
 		d->dirty |= kind;
-		if (kind == DIRTY_MODE)
+		if (kind == DIRTY_MODE) {
 			ret = mask(d, 0x0751, 0xb0, v);
-		else if (kind == DIRTY_LIGHT)
+			if (!ret && d->curve_fans)
+				ret = curve_apply(d);
+		} else if (kind == DIRTY_LIGHT)
 			ret = brightness(d, v);
 		else if (kind == DIRTY_CHARGE)
 			ret = mask(d, 0x07a6, 0x30, v);
 		else
 			ret = color(d, rgb);
 	}
-failed:
 	if (ret) {
 		d->last_error = ret;
 		d->active = false;
@@ -750,9 +761,6 @@ static void notify(struct wmi_device *wdev, union acpi_object *obj)
 	ret = available(d);
 	if (ret)
 		goto fail;
-	ret = curve_restore(d);
-	if (ret)
-		goto fail;
 	ret = rd(d, 0x0751, &v);
 	if (ret)
 		goto fail;
@@ -772,6 +780,8 @@ static void notify(struct wmi_device *wdev, union acpi_object *obj)
 	}
 	d->dirty |= DIRTY_MODE;
 	ret = mask(d, 0x0751, 0xb0, next);
+	if (!ret && d->curve_fans)
+		ret = curve_apply(d);
 	if (!ret) {
 		sysfs_notify(&d->hwmon->kobj, NULL, "mode");
 		goto out;
