@@ -66,28 +66,88 @@ fn gpuAt(a: A, pci_path: []const u8) Gpu {
     }
     return .{};
 }
-fn queryNvml(bus: [:0]const u8) Gpu {
-    var lib = std.DynLib.open("libnvidia-ml.so.1") catch return .{};
-    defer lib.close();
+const Nvml = struct {
     const Init = *const fn () callconv(.c) c_uint;
     const Handle = *const fn ([*:0]const u8, *?*anyopaque) callconv(.c) c_uint;
     const Temp = *const fn (?*anyopaque, c_uint, *c_uint) callconv(.c) c_uint;
     const Power = *const fn (?*anyopaque, *c_uint) callconv(.c) c_uint;
-    const init = lib.lookup(Init, "nvmlInit_v2") orelse return .{};
-    const shutdown = lib.lookup(Init, "nvmlShutdown") orelse return .{};
-    const getHandle = lib.lookup(Handle, "nvmlDeviceGetHandleByPciBusId_v2") orelse return .{};
-    const getTemp = lib.lookup(Temp, "nvmlDeviceGetTemperature") orelse return .{};
-    const getPower = lib.lookup(Power, "nvmlDeviceGetPowerUsage") orelse return .{};
-    if (init() != 0) return .{};
-    defer _ = shutdown();
-    var device: ?*anyopaque = null;
-    if (getHandle(bus.ptr, &device) != 0 or device == null) return .{};
+
+    lib: ?std.DynLib,
+    shutdown: Init,
+    get_temp: Temp,
+    get_power: Power,
+    device: ?*anyopaque,
+    bus: [32]u8,
+    bus_len: usize,
+
+    fn open(bus: [:0]const u8) !Nvml {
+        if (bus.len > 32) return error.InvalidBus;
+        var lib = try std.DynLib.open("libnvidia-ml.so.1");
+        errdefer lib.close();
+        const init = lib.lookup(Init, "nvmlInit_v2") orelse return error.MissingSymbol;
+        const shutdown = lib.lookup(Init, "nvmlShutdown") orelse return error.MissingSymbol;
+        const get_handle = lib.lookup(Handle, "nvmlDeviceGetHandleByPciBusId_v2") orelse return error.MissingSymbol;
+        const get_temp = lib.lookup(Temp, "nvmlDeviceGetTemperature") orelse return error.MissingSymbol;
+        const get_power = lib.lookup(Power, "nvmlDeviceGetPowerUsage") orelse return error.MissingSymbol;
+        if (init() != 0) return error.NvmlInit;
+        errdefer _ = shutdown();
+        var device: ?*anyopaque = null;
+        if (get_handle(bus.ptr, &device) != 0 or device == null) return error.NvmlDevice;
+        var result = Nvml{ .lib = lib, .shutdown = shutdown, .get_temp = get_temp, .get_power = get_power, .device = device, .bus = undefined, .bus_len = bus.len };
+        @memcpy(result.bus[0..bus.len], bus);
+        return result;
+    }
+
+    fn close(self: *Nvml) void {
+        _ = self.shutdown();
+        if (self.lib) |*lib| lib.close();
+    }
+};
+
+// Keep the NVML session and device handle across samples AND runtime suspend.
+// Repeated init/handle lookup/shutdown kept this laptop awake in hardware tests.
+// No NVML calls are made while sysfs reports suspended or transitioning.
+var nvml: ?Nvml = null;
+var nvml_retry_after: ?std.time.Instant = null;
+
+pub fn deinit() void {
+    if (nvml) |*session| session.close();
+    nvml = null;
+    nvml_retry_after = null;
+}
+
+fn queryNvml(bus: [:0]const u8) Gpu {
+    if (nvml) |*session| {
+        if (!std.mem.eql(u8, session.bus[0..session.bus_len], bus)) deinit();
+    }
+    if (nvml == null) {
+        const now = std.time.Instant.now() catch return .{ .state = .active };
+        if (nvml_retry_after) |last_failure| {
+            if (now.since(last_failure) < 30 * std.time.ns_per_s) return .{ .state = .active };
+        }
+        nvml = Nvml.open(bus) catch {
+            nvml_retry_after = now;
+            return .{ .state = .active };
+        };
+        nvml_retry_after = null;
+    }
+    const session = &nvml.?;
     var t: c_uint = 0;
     var p: c_uint = 0;
-    var result = Gpu{};
-    if (getTemp(device, 0, &t) == 0 and t <= 150) result.celsius = @floatFromInt(t);
-    if (getPower(device, &p) == 0 and p <= 1000000) result.watts = @as(f64, @floatFromInt(p)) / 1000;
-    if (result.celsius != null or result.watts != null) result.state = .active;
+    const tr = session.get_temp(session.device, 0, &t);
+    const pr = session.get_power(session.device, &p);
+    var result = Gpu{ .state = .active };
+    if (tr == 0 and t <= 150) result.celsius = @floatFromInt(t);
+    if (pr == 0 and p <= 1000000) result.watts = @as(f64, @floatFromInt(p)) / 1000;
+    // Reconnect after a lost GPU/driver or invalid session, with a cooldown.
+    // Unsupported individual metrics do not cause repeated initialization.
+    for ([_]c_uint{ tr, pr }) |rc| {
+        if (rc == 1 or rc == 9 or rc == 15 or rc == 999) {
+            deinit();
+            nvml_retry_after = std.time.Instant.now() catch null;
+            return .{ .state = .active };
+        }
+    }
     return result;
 }
 test "energy delta units, wraparound and invalid sampling intervals" {
@@ -117,4 +177,70 @@ test "GPU discovery distinguishes absent, sleeping and transitioning devices wit
     try std.testing.expectEqual(.transitioning, gpuAt(a, root).state);
     try tmp.dir.writeFile(.{ .sub_path = "0000:01:00.0/class", .data = "0x040300\n" });
     try std.testing.expectEqual(.unavailable, gpuAt(a, root).state);
+}
+
+test "NVML session survives samples and suspend, closes once, and backs off on GPU loss" {
+    const Fake = struct {
+        var reads: usize = 0;
+        var closes: usize = 0;
+        var power_error: c_uint = 0;
+        fn shutdown() callconv(.c) c_uint {
+            closes += 1;
+            return 0;
+        }
+        fn temp(_: ?*anyopaque, _: c_uint, out: *c_uint) callconv(.c) c_uint {
+            reads += 1;
+            out.* = 42;
+            return 0;
+        }
+        fn power(_: ?*anyopaque, out: *c_uint) callconv(.c) c_uint {
+            reads += 1;
+            out.* = 5500;
+            return power_error;
+        }
+    };
+    deinit();
+    defer deinit();
+    Fake.reads = 0;
+    Fake.closes = 0;
+    Fake.power_error = 0;
+    const bus = "0000:01:00.0";
+    nvml = .{ .lib = null, .shutdown = Fake.shutdown, .get_temp = Fake.temp, .get_power = Fake.power, .device = null, .bus = undefined, .bus_len = bus.len };
+    @memcpy(nvml.?.bus[0..bus.len], bus);
+    try std.testing.expectEqual(@as(?f64, 5.5), queryNvml(bus).watts);
+    try std.testing.expectEqual(@as(?f64, 42), queryNvml(bus).celsius);
+    try std.testing.expectEqual(@as(usize, 4), Fake.reads);
+    try std.testing.expectEqual(@as(usize, 0), Fake.closes);
+
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const root = try tmp.dir.realpathAlloc(a, ".");
+    try tmp.dir.makePath(bus ++ "/power");
+    try tmp.dir.writeFile(.{ .sub_path = bus ++ "/vendor", .data = "0x10de\n" });
+    try tmp.dir.writeFile(.{ .sub_path = bus ++ "/class", .data = "0x030000\n" });
+    for ([_][]const u8{ "suspended\n", "suspending\n", "resuming\n" }) |state| {
+        try tmp.dir.writeFile(.{ .sub_path = bus ++ "/power/runtime_status", .data = state });
+        const result = gpuAt(a, root);
+        try std.testing.expect(result.watts == null and result.celsius == null);
+        try std.testing.expectEqual(@as(usize, 4), Fake.reads);
+        try std.testing.expectEqual(@as(usize, 0), Fake.closes);
+    }
+    try tmp.dir.writeFile(.{ .sub_path = bus ++ "/power/runtime_status", .data = "active\n" });
+    try std.testing.expectEqual(@as(?f64, 5.5), gpuAt(a, root).watts);
+    // A permanently unsupported metric must not churn the session.
+    Fake.power_error = 3;
+    try std.testing.expect(queryNvml(bus).watts == null);
+    try std.testing.expectEqual(@as(usize, 0), Fake.closes);
+    Fake.power_error = 15;
+    try std.testing.expect(queryNvml(bus).watts == null);
+    try std.testing.expect(nvml == null);
+    try std.testing.expectEqual(@as(usize, 1), Fake.closes);
+    const reads = Fake.reads;
+    try std.testing.expectEqual(.active, queryNvml(bus).state);
+    try std.testing.expectEqual(reads, Fake.reads);
+    deinit();
+    try std.testing.expectEqual(@as(usize, 1), Fake.closes);
 }

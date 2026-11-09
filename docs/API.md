@@ -6,6 +6,8 @@
 
 返回 `schema_version=1` 的 JSON，包含 CPU 温度/功耗、GPU 状态/温度/功耗、风扇、温度传感器、电池和可空的 `vendor` 控制状态。不可用项为 `null`，列表缺失设备时为空。GPU 的 `state` 为 `active`、`suspended`、`transitioning` 或 `unavailable`。
 
+GPU 活动时复用 NVML 会话读取温度/功耗；休眠或切换状态时不调用 NVML，两项为 `null`，不显示旧读数或假定 0 W。`active` 表示 PCI 运行状态，传感器不可用时仍可为 `active`。驱动丢失/会话失效后至少等待 30 秒再尝试建立会话。
+
 `vendor.control`：`firmware`（未接管）、`active`（已接管）、`retained`（EC 留有控制状态但当前驱动未接管）、`restore_failed`（控制错误，需用户手动恢复）。后者为既有协议名称，也用于写入错误后的状态。
 
 ## Set(s setting, s value)

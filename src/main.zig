@@ -82,6 +82,7 @@ fn handler(m: ?*c.sd_bus_message, _: ?*anyopaque, _: ?*c.sd_bus_error) callconv(
     return c.sd_bus_reply_method_return(m, "s", text.ptr);
 }
 pub fn main() !void {
+    defer @import("telemetry.zig").deinit();
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const a = arena.allocator();
