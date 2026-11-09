@@ -29,6 +29,7 @@ export default class MechrevoControl extends Extension {
         this._queued = new Map();
         this._syncing = false;
         this._button = new PanelMenu.Button(0.0, 'Mechrevo Control');
+        this._button.menu.setSourceAlignment(0.0);
         this._label = new St.Label({text: '硬件 …', y_align: Clutter.ActorAlign.CENTER});
         this._button.add_child(this._label);
         Main.panel.addToStatusArea(this.uuid, this._button);
@@ -67,9 +68,9 @@ export default class MechrevoControl extends Extension {
         });
     }
 
-    _row(text, menu = this._button.menu) {
+    _row(text, menu = this._button.menu, position = undefined) {
         const row = new PopupMenu.PopupMenuItem(text, {reactive: false, can_focus: false});
-        menu.addMenuItem(row);
+        menu.addMenuItem(row, position);
         return row;
     }
 
@@ -153,12 +154,12 @@ export default class MechrevoControl extends Extension {
 
     _buildMenu() {
         this._summary = this._row('正在读取硬件…');
-        this._gpu = this._row('独显 -');
+        this._gpu = this._row('GPU -');
         this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this._choices('性能模式', 'mode', [['office', '办公'], ['balanced', '均衡'], ['turbo', '狂暴']]);
         this._choices('风扇控制', 'fan_control', [['auto', '自动'], ['manual', '手动'], ['curve', '曲线']]);
         this._slider('CPU 风扇', 'fan1_percent', 0, 100);
-        this._slider('独显风扇', 'fan2_percent', 0, 100);
+        this._slider('GPU 风扇', 'fan2_percent', 0, 100);
         this._curveInfo = new PopupMenu.PopupMenuItem('编辑风扇曲线…');
         this._curveInfo.connect('activate', () => {
             this._button.menu.close();
@@ -192,7 +193,6 @@ export default class MechrevoControl extends Extension {
             if (open) this._updateDetails();
         });
         this._detailRows = [];
-        this._chargeDetail = this._row('', this._details.menu);
         const editCurve = new PopupMenu.PopupMenuItem('编辑风扇曲线…');
         editCurve.connect('activate', () => {
             this._button.menu.close();
@@ -211,7 +211,7 @@ export default class MechrevoControl extends Extension {
         // Prefer the SSD composite reading over its internal sensor channels.
         const deviceName = t => {
             if (t.chip === 'amdgpu' && t.label === 'edge') return '核显温度';
-            if (t.chip === 'mechrevo' && /GPU/i.test(t.label)) return '独显温度';
+            if (t.chip === 'mechrevo' && /GPU/i.test(t.label)) return 'GPU 温度';
             if (t.chip === 'nvme' && t.label === 'Composite') return '固态硬盘温度';
             if (/^(spd5118|jc42)$/.test(t.chip)) return '内存温度';
             if (/^(mt\d+|iwlwifi)/.test(t.chip)) return '无线网卡温度';
@@ -226,7 +226,7 @@ export default class MechrevoControl extends Extension {
         const indices = new Map();
         for (const t of temps) counts.set(t.name, (counts.get(t.name) ?? 0) + 1);
         while (this._detailRows.length < temps.length)
-            this._detailRows.push(this._row('', this._details.menu));
+            this._detailRows.push(this._row('', this._details.menu, this._detailRows.length + 1));
         this._detailRows.forEach((row, i) => {
             row.visible = i < temps.length;
             if (row.visible) {
@@ -270,10 +270,6 @@ export default class MechrevoControl extends Extension {
         }
         this._syncing = false;
         this._curveInfo.visible = v?.fan_control === 'curve';
-        const chargeProfile = {high_capacity: '长效', balanced: '平衡', stationary: '工作站'}[v?.charging_profile];
-        this._chargeDetail.label.text = chargeProfile
-            ? `充电：${chargeProfile} · 实际限充效果待验证`
-            : '充电配置不可用';
 
         this._release.setSensitive(writable);
         const message = this._writing ? '正在应用设置…' : this._error || (v?.control === 'restore_failed' ? '控制出错，请手动恢复' : '') || (!v ? '控制驱动不可用' : this._bus !== Gio.DBus.system ? '只读模式：系统服务未连接' : '');
@@ -291,7 +287,7 @@ export default class MechrevoControl extends Extension {
         const watts = n => Number.isFinite(n) ? `${n.toFixed(1)} W` : '-';
         this._summary.label.text = `CPU  ${temp == null ? '-' : Math.round(temp) + '°C'}  ·  ${watts(d.cpu_power_watts)}  ·  ${rpm('Main')}`;
         const gpuState = {suspended: '已休眠', transitioning: '电源切换中', unavailable: '读数不可用'}[d.gpu?.state];
-        this._gpu.label.text = gpuState ? `独显  ${gpuState}` : `独显  ${d.gpu?.celsius == null ? '-' : Math.round(d.gpu.celsius) + '°C'}  ·  ${watts(d.gpu?.watts)}`;
+        this._gpu.label.text = gpuState ? `GPU  ${gpuState}` : `GPU  ${d.gpu?.celsius == null ? '-' : Math.round(d.gpu.celsius) + '°C'}  ·  ${watts(d.gpu?.watts)}`;
         this._gpu.label.text += `  ·  ${rpm('Secondary')}`;
         this._label.text = `${temp == null ? '硬件' : Math.round(temp) + '°C'}${fans.length ? ' · ' + fans.map(f => f.rpm).join('/') + ' RPM' : ''}`;
         if (this._details.menu.isOpen) this._updateDetails();

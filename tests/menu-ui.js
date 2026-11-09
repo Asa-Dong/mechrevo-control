@@ -49,11 +49,11 @@ export async function run() {
         const gpu = ext._data.gpu;
         ext._data.gpu = {celsius: null, watts: null};
         ext._sync();
-        if (!ext._gpu.label.text.startsWith('独显  -  ·  -  ·  ')) throw new Error('Missing GPU values must use plain hyphens');
+        if (!ext._gpu.label.text.startsWith('GPU  -  ·  -  ·  ')) throw new Error('Missing GPU values must use plain hyphens');
         for (const [state, label] of [['suspended', '已休眠'], ['transitioning', '电源切换中'], ['unavailable', '读数不可用']]) {
             ext._data.gpu = {state, celsius: null, watts: null};
             ext._sync();
-            if (!ext._gpu.label.text.startsWith(`独显  ${label}  ·  `)) throw new Error(`Wrong GPU state: ${state}`);
+            if (!ext._gpu.label.text.startsWith(`GPU  ${label}  ·  `)) throw new Error(`Wrong GPU state: ${state}`);
         }
         ext._data.gpu = gpu;
         ext._sync();

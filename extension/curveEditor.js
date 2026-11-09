@@ -36,7 +36,7 @@ export class CurveEditor {
         const page = new Adw.PreferencesPage({title: '风扇曲线', icon_name: 'preferences-system-symbolic'});
         window.add(page);
         const chartGroup = new Adw.PreferencesGroup({title: '温度 → 风扇转速',
-            description: '蓝色：CPU 风扇 · 橙色：独显风扇。固定温区，百分比随温度不递减。'});
+            description: '蓝色：CPU 风扇 · 橙色：GPU 风扇。固定温区，百分比随温度不递减。'});
         page.add(chartGroup);
         this.chart = new Gtk.DrawingArea({content_height: 140, hexpand: true});
         this.chart.set_draw_func((_area, cr, w, h) => this.draw(cr, w, h));
