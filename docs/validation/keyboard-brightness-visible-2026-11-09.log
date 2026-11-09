@@ -1,0 +1,8 @@
+Nov 09 00:39:41 dev-pc2 kernel: mechrevo_keyboard_test: BEFORE raw=0x80 brightness=4
+Nov 09 00:39:41 dev-pc2 kernel: mechrevo_keyboard_test: GATE_BEFORE raw=0x80
+Nov 09 00:39:41 dev-pc2 kernel: mechrevo_keyboard_test: GATE_ENABLED raw=0x81
+Nov 09 00:39:51 dev-pc2 kernel: mechrevo_keyboard_test: READBACK raw=0x20 brightness=1
+Nov 09 00:39:51 dev-pc2 kernel: mechrevo_keyboard_test: switch_result=0
+Nov 09 00:39:51 dev-pc2 kernel: mechrevo_keyboard_test: RESTORED raw=0x80 brightness=4
+Nov 09 00:39:52 dev-pc2 kernel: mechrevo_keyboard_test: GATE_RESTORED raw=0x80
+Nov 09 00:39:57 dev-pc2 kernel: mechrevo_keyboard_test: unloaded restore_pending=0 gate_pending=0

@@ -1,0 +1,17 @@
+[Unit]
+Description=Mechrevo read-only hardware status service
+
+[Service]
+Type=dbus
+BusName=io.github.mechrevo.Control1
+ExecStart=%h/.local/libexec/mechrevo-control
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=default.target

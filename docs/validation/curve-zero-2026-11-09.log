@@ -1,0 +1,11 @@
+curve 0% low bins: RPM=1492/1572 CPU=47000
+curve 0% low bins: RPM=1490/1573 CPU=47000
+curve 0% low bins: RPM=1488/1572 CPU=47000
+curve 0% low bins: RPM=1494/1572 CPU=47000
+curve 0% low bins: RPM=1487/1575 CPU=47000
+curve 0% low bins: RPM=1492/1576 CPU=47000
+curve 0% low bins: RPM=1491/1572 CPU=47000
+curve 0% low bins: RPM=1490/1570 CPU=47000
+curve 0% low bins: RPM=1487/1570 CPU=47000
+curve 0% low bins: RPM=1494/1572 CPU=47000
+PASS: zero curve values accepted; actual RPM above; original configuration will be restored

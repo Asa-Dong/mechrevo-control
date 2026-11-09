@@ -1,0 +1,24 @@
+[  851.566381] mechrevo_manual_test: target=100/100 rpm=2785/2905 raw=255/255 temp=46
+[  853.674758] mechrevo_manual_test: target=100/100 rpm=2619/2743 raw=255/255 temp=45
+[  855.794691] mechrevo_manual_test: target=100/100 rpm=2447/2582 raw=255/255 temp=45
+[  857.894554] mechrevo_manual_test: target=100/100 rpm=2274/2403 raw=255/255 temp=45
+[  860.078449] mechrevo_manual_test: target=60/100 rpm=2107/2218 raw=255/255 temp=45
+[  862.190749] mechrevo_manual_test: target=60/100 rpm=1825/2030 raw=255/255 temp=45
+[  864.306825] mechrevo_manual_test: target=60/100 rpm=1653/1730 raw=255/255 temp=45
+[  866.410707] mechrevo_manual_test: target=60/100 rpm=1499/1050 raw=255/255 temp=45
+[  868.622393] mechrevo_manual_test: target=100/60 rpm=1491/517 raw=255/255 temp=44
+[  870.734698] mechrevo_manual_test: target=100/60 rpm=1492/0 raw=255/255 temp=44
+[  872.846459] mechrevo_manual_test: target=100/60 rpm=1493/0 raw=255/255 temp=44
+[  874.958397] mechrevo_manual_test: target=100/60 rpm=1490/0 raw=255/255 temp=44
+[  877.166451] mechrevo_manual_test: target=30/30 rpm=1491/0 raw=255/255 temp=45
+[  879.274368] mechrevo_manual_test: target=30/30 rpm=1498/0 raw=255/255 temp=45
+[  881.386716] mechrevo_manual_test: target=30/30 rpm=1495/0 raw=255/255 temp=45
+[  883.502393] mechrevo_manual_test: target=30/30 rpm=1494/0 raw=255/255 temp=45
+[  883.502410] mechrevo_manual_test: TEST result=0
+[  886.263194] mechrevo_manual_test: RESTORE result=0
+[  926.858243] mechrevo_manual_test: target=100/100 rpm=2785/2902 raw=255/255 temp=47
+[  928.970209] mechrevo_manual_test: target=100/100 rpm=2632/2753 raw=255/255 temp=47
+[  931.082520] mechrevo_manual_test: target=100/100 rpm=2472/2582 raw=255/255 temp=46
+[  933.190226] mechrevo_manual_test: target=100/100 rpm=2286/2398 raw=255/255 temp=46
+[  933.190242] mechrevo_manual_test: TEST result=-95
+[  935.724102] mechrevo_manual_test: RESTORE result=0

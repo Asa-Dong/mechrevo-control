@@ -1,0 +1,9 @@
+Isolation start: 2026-11-09T10:49:04.921398
+Boot ID: 37545acf-1e41-435b-b84a-98bd1217eb1a
+Stopped system service; user service inactive; unloaded mechrevo_control; disabled previously enabled extension v15. Awaiting manual suspend/resume. Restore extension, module and system service after test.
+Nov 09 10:50:18 dev-pc2 kernel: x86/amd: Previous system reset reason [0x00300800]: software wrote 0xE to reset control register 0xCF9
+Nov 09 10:50:18 dev-pc2 kernel: x86/amd: Previous system reset reason [0x00300800]: ACPI power state transition occurred
+Result: user reports automatic reboot on wake. Previous journal ends at 10:49:19 PM: suspend entry (s2idle); no resume completion or saved panic. pstore empty. New boot a096a334-7a74-48a0-b535-267768d495f4 at 10:50:18. Service stopped at 10:48:59; module absence verified before test. Current boot automatically loaded 0.4.7 and started service. Extension re-enabled after test. Prior EC state effects are not excluded.
+
+Persistent isolation configured at 2026-11-09T10:52:15.753017: service disabled and stopped, extension disabled, module unloaded. /etc/modules-load.d/mechrevo-control.conf contains comment only. /etc/modprobe.d/mechrevo-control-isolation.conf blacklists module and overrides install with /bin/false. Running kernel initramfs contains no mechrevo files. Awaiting full shutdown/start, then verify module absent before suspend.
+Restore after test: remove isolation modprobe file; write mechrevo_control to modules-load file; modprobe mechrevo_control; systemctl enable --now mechrevo-control-system.service; gnome-extensions enable mechrevo-control@local (as desktop user).

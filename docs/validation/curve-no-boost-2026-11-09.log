@@ -1,0 +1,9 @@
+fan_curve=40 40 40 40 100 60 60 60 60 100 elapsed 3293 ms
+Curve RPM=2227/2356 CPU=45000
+fan_control=auto elapsed 1208 ms
+fan_control=curve elapsed 2496 ms
+fan_control=curve elapsed 225 ms
+control=release elapsed 1181 ms
+fan_control=curve elapsed 2663 ms
+PASS: curve apply, auto, reapply, no-op, release and service stop without table rollback
+control=release elapsed 5 ms

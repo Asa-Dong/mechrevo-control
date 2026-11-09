@@ -1,0 +1,4 @@
+Nov 09 00:36:53 dev-pc2 kernel: mechrevo_charge_test: BEFORE raw=0x01 profile=0
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: READBACK raw=0x01 profile=0
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: switch_result=-5
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: RESTORED raw=0x01 profile=0

@@ -1,0 +1,45 @@
+[310335.206471] mechrevo_probe: fan_table_enable offset=0x07c6 value=0x00
+[310335.218475] mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+[310335.230449] mechrevo_probe: keyboard_status offset=0x078c value=0x80
+[310335.242445] mechrevo_probe: capabilities offset=0x078e value=0xec
+[310335.254503] mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+[310335.266545] mechrevo_probe: mode offset=0x0751 value=0x20
+[310335.278485] mechrevo_probe: manual_mode offset=0x0741 value=0x80
+[310335.290561] mechrevo_probe: custom_profile offset=0x0727 value=0x00
+[310335.302650] mechrevo_probe: main_fan_high offset=0x0464 value=0x08
+[310335.314744] mechrevo_probe: main_fan_low offset=0x0465 value=0x8d
+[310335.326834] mechrevo_probe: secondary_fan_high offset=0x046c value=0x09
+[310335.338488] mechrevo_probe: secondary_fan_low offset=0x046d value=0x07
+[310335.350484] mechrevo_probe: cpu_temperature offset=0x043e value=0x3b
+[310335.427974] mechrevo_probe: unloaded
+[310706.711010] mechrevo_mode_test: BEFORE mode=a0 gate=80 temp=60
+[310706.783014] mechrevo_mode_test: TARGET=20 result=0
+[310715.210578] mechrevo_mode_test: HOLD target=20 result=0 temp=60
+[310715.246577] mechrevo_mode_test: TARGET=30 result=0
+[310723.690177] mechrevo_mode_test: HOLD target=30 result=0 temp=59
+[310723.726169] mechrevo_mode_test: TARGET=a0 result=0
+[310732.173795] mechrevo_mode_test: HOLD target=a0 result=0 temp=59
+[310732.173808] mechrevo_mode_test: test_result=0
+[310732.209742] mechrevo_mode_test: MODE_RESTORED=a0
+[310732.245971] mechrevo_mode_test: GATE_RESTORED=0
+[310735.470957] mechrevo_mode_test: unloaded restore=0
+[310735.548190] mechrevo_probe: barebone_id offset=0x0740 value=0x1a
+[310735.557601] mechrevo_probe: rgb_mode offset=0x0767 value=0x00
+[310735.568201] mechrevo_probe: rgb_red offset=0x0769 value=0x00
+[310735.580406] mechrevo_probe: rgb_green offset=0x076a value=0x32
+[310735.592988] mechrevo_probe: rgb_blue offset=0x076b value=0x32
+[310735.602508] mechrevo_probe: fan_table_split offset=0x07c5 value=0x08
+[310735.614622] mechrevo_probe: fan_table_enable offset=0x07c6 value=0x00
+[310735.626849] mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+[310735.637759] mechrevo_probe: keyboard_status offset=0x078c value=0x80
+[310735.649798] mechrevo_probe: capabilities offset=0x078e value=0xec
+[310735.661902] mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+[310735.674314] mechrevo_probe: mode offset=0x0751 value=0xa0
+[310735.686583] mechrevo_probe: manual_mode offset=0x0741 value=0x80
+[310735.699133] mechrevo_probe: custom_profile offset=0x0727 value=0x00
+[310735.711369] mechrevo_probe: main_fan_high offset=0x0464 value=0x07
+[310735.723651] mechrevo_probe: main_fan_low offset=0x0465 value=0xfb
+[310735.735936] mechrevo_probe: secondary_fan_high offset=0x046c value=0x08
+[310735.748398] mechrevo_probe: secondary_fan_low offset=0x046d value=0x74
+[310735.758204] mechrevo_probe: cpu_temperature offset=0x043e value=0x3b
+[310735.830902] mechrevo_probe: unloaded

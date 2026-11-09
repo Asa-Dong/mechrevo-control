@@ -1,0 +1,10 @@
+{
+  "uuid": "mechrevo-control@local",
+  "name": "Mechrevo Control",
+  "description": "机械革命温度与风扇转速顶栏，键盘灯光、充电配置和性能模式控制。",
+  "shell-version": [
+    "48"
+  ],
+  "version": 19,
+  "version-name": "1.0.0"
+}

@@ -1,0 +1,18 @@
+Nov 09 01:38:26 dev-pc2 kernel: mechrevo_manual_test: target=100/100 rpm=4802/4945 raw=197/196 temp=41
+Nov 09 01:38:29 dev-pc2 kernel: mechrevo_manual_test: target=100/100 rpm=4770/4922 raw=197/196 temp=41
+Nov 09 01:38:32 dev-pc2 kernel: mechrevo_manual_test: target=100/100 rpm=4759/4911 raw=196/196 temp=41
+Nov 09 01:38:35 dev-pc2 kernel: mechrevo_manual_test: target=100/100 rpm=4739/4911 raw=196/196 temp=40
+Nov 09 01:38:38 dev-pc2 kernel: mechrevo_manual_test: target=50/100 rpm=2767/4900 raw=96/197 temp=40
+Nov 09 01:38:41 dev-pc2 kernel: mechrevo_manual_test: target=50/100 rpm=2771/4911 raw=96/197 temp=40
+Nov 09 01:38:44 dev-pc2 kernel: mechrevo_manual_test: target=50/100 rpm=2789/4911 raw=97/197 temp=40
+Nov 09 01:38:47 dev-pc2 kernel: mechrevo_manual_test: target=50/100 rpm=2771/4900 raw=96/197 temp=40
+Nov 09 01:38:50 dev-pc2 kernel: mechrevo_manual_test: target=100/50 rpm=4749/2905 raw=196/97 temp=40
+Nov 09 01:38:53 dev-pc2 kernel: mechrevo_manual_test: target=100/50 rpm=4749/2913 raw=196/97 temp=40
+Nov 09 01:38:56 dev-pc2 kernel: mechrevo_manual_test: target=100/50 rpm=4770/2921 raw=197/97 temp=40
+Nov 09 01:38:59 dev-pc2 kernel: mechrevo_manual_test: target=100/50 rpm=4759/2921 raw=197/97 temp=40
+Nov 09 01:39:02 dev-pc2 kernel: mechrevo_manual_test: target=30/30 rpm=1747/1850 raw=57/57 temp=40
+Nov 09 01:39:05 dev-pc2 kernel: mechrevo_manual_test: target=30/30 rpm=1750/1847 raw=57/57 temp=40
+Nov 09 01:39:08 dev-pc2 kernel: mechrevo_manual_test: target=30/30 rpm=1751/1847 raw=57/56 temp=40
+Nov 09 01:39:11 dev-pc2 kernel: mechrevo_manual_test: target=30/30 rpm=1754/1842 raw=57/57 temp=39
+Nov 09 01:39:11 dev-pc2 kernel: mechrevo_manual_test: TEST result=0
+Nov 09 01:39:12 dev-pc2 kernel: mechrevo_manual_test: RESTORE result=0

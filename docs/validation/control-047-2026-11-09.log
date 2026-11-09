@@ -1,0 +1,19 @@
+PASS: service accepts 0/10% and 85/90% last bins; manual mode operational; override interface removed
+Nov 09 03:08:31 dev-pc2 kernel: mechrevo_transport_test: 0726 MMIO=80 WMI=80 40 00 00
+Nov 09 03:08:31 dev-pc2 kernel: mechrevo_transport_test: 0727 MMIO=40 WMI=40 00 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 0740 MMIO=1a WMI=1a 81 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 0741 MMIO=81 WMI=81 22 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 0751 MMIO=00 WMI=00 6c 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 078e MMIO=ec WMI=ec 00 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 07c5 MMIO=80 WMI=80 04 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 07c6 MMIO=04 WMI=04 0c 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 0f20 MMIO=00 WMI=00 00 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 0f50 MMIO=00 WMI=00 14 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 1804 MMIO=ff WMI=32 32 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: 1809 MMIO=ff WMI=32 00 00 00
+Nov 09 03:08:32 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f00=14 28 32 3c 46 50 55 5a 5f 64 69 6e 73 78 7d ff
+Nov 09 03:08:33 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f10=00 11 25 2f 39 43 4d 52 57 5c 61 66 6b 70 75 7a
+Nov 09 03:08:33 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f20=00 00 28 50 78 aa aa aa aa aa aa aa aa aa aa aa
+Nov 09 03:08:33 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f30=14 28 32 3c 46 50 55 5a 5f 64 69 6e 73 78 7d ff
+Nov 09 03:08:33 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f40=00 11 25 2f 39 43 4d 52 57 5c 61 66 6b 70 75 7a
+Nov 09 03:08:33 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f50=00 14 28 50 78 b4 b4 b4 b4 b4 b4 b4 b4 b4 b4 b4

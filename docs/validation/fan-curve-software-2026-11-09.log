@@ -1,0 +1,20 @@
+{"step": 0, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [1835, 1969]}
+{"step": 1, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2013, 2147]}
+{"step": 2, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2030, 2126]}
+{"step": 3, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2003, 2120]}
+{"step": 4, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2015, 2113]}
+{"step": 5, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2024, 2128]}
+{"step": 6, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2032, 2134]}
+{"step": 7, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2026, 2128]}
+{"step": 8, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [1998, 2122]}
+{"step": 9, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [1985, 2116]}
+{"step": 10, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2013, 2103]}
+{"step": 11, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2034, 2113]}
+{"step": 12, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2009, 2134]}
+{"step": 13, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2017, 2107]}
+{"step": 14, "cpu": 45, "gpu": 38, "percent": 35, "rpm": [2017, 2147]}
+Traceback (most recent call last):
+  File "/data/code/me/debian13/mechrevo-control/tests/curve-hardware.py", line 20, in <module>
+    assert v['fan_control']=='curve',v
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'curve_cpu': None, 'curve_gpu': None, 'curve_error': None, 'curve_points': '40°C 30% · 50°C 40% · 60°C 60% · 70°C 80% · 80°C 100%', 'control': 'firmware', 'mode': 'office', 'fan_boost': 0, 'fan_control': 'auto', 'fan1_percent': 35, 'fan2_percent': 35, 'fan_override': 0, 'keyboard_brightness': 4, 'keyboard_rgb': '0 50 50', 'charging_profile': 'high_capacity', 'last_error': 0}

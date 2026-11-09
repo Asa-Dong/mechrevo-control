@@ -1,0 +1,10 @@
+[311078.385116] mechrevo_key_cycle: ready active=1 initial=a0 limit=3 timeout=60s
+[311087.289869] mechrevo_key_cycle: event=0xb0 step=1 mode=a0->30 result=0 temp=58
+[311088.041951] mechrevo_key_cycle: event=0xb0 step=2 mode=30->20 result=0 temp=58
+[311088.798009] mechrevo_key_cycle: event=0xb0 step=3 mode=20->a0 result=0 temp=58
+[311088.870028] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[311088.870037] mechrevo_key_cycle: complete restore=0
+[311110.568138] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[311110.568148] mechrevo_key_cycle: unload restore=0
+[311110.568171] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[311110.568172] mechrevo_key_cycle: detach restore=0

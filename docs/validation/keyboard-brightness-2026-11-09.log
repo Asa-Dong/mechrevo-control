@@ -1,0 +1,22 @@
+Nov 09 00:38:58 dev-pc2 kernel: mechrevo_keyboard_test: BEFORE raw=0x80 brightness=4
+Nov 09 00:38:58 dev-pc2 kernel: mechrevo_keyboard_test: GATE_BEFORE raw=0x80
+Nov 09 00:38:58 dev-pc2 kernel: mechrevo_keyboard_test: GATE_ENABLED raw=0x81
+Nov 09 00:39:01 dev-pc2 kernel: mechrevo_keyboard_test: READBACK raw=0x60 brightness=3
+Nov 09 00:39:01 dev-pc2 kernel: mechrevo_keyboard_test: switch_result=0
+Nov 09 00:39:01 dev-pc2 kernel: mechrevo_keyboard_test: RESTORED raw=0x80 brightness=4
+Nov 09 00:39:01 dev-pc2 kernel: mechrevo_keyboard_test: GATE_RESTORED raw=0x80
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_keyboard_test: unloaded restore_pending=0 gate_pending=0
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: barebone_id offset=0x0740 value=0x1a
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: keyboard_status offset=0x078c value=0x80
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: capabilities offset=0x078e value=0xec
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: mode offset=0x0751 value=0x20
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: manual_mode offset=0x0741 value=0x80
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: custom_profile offset=0x0727 value=0x00
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: main_fan_high offset=0x0464 value=0x08
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: main_fan_low offset=0x0465 value=0x4a
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: secondary_fan_high offset=0x046c value=0x08
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: secondary_fan_low offset=0x046d value=0xb5
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: cpu_temperature offset=0x043e value=0x3a
+Nov 09 00:39:26 dev-pc2 kernel: mechrevo_probe: unloaded

@@ -1,0 +1,12 @@
+Nov 09 01:43:03 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2818/2913 raw=97/97 temp=41
+Nov 09 01:43:05 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2655/2757 raw=90/89 temp=41
+Nov 09 01:43:08 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2498/2591 raw=82/82 temp=41
+Nov 09 01:43:10 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2326/2414 raw=75/75 temp=41
+Nov 09 01:43:12 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2130/2229 raw=68/68 temp=41
+Nov 09 01:43:14 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=1865/1937 raw=61/60 temp=41
+Nov 09 01:43:16 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=1680/1748 raw=53/53 temp=41
+Nov 09 01:43:19 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=1523/1579 raw=50/50 temp=41
+Nov 09 01:43:21 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=1511/1579 raw=50/50 temp=41
+Nov 09 01:43:23 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=1511/1580 raw=50/50 temp=41
+Nov 09 01:43:23 dev-pc2 kernel: mechrevo_curve_test: TEST result=0
+Nov 09 01:43:31 dev-pc2 kernel: mechrevo_curve_test: RESTORE result=0

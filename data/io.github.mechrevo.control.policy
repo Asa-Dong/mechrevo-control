@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Mechrevo Control</vendor>
+  <action id="io.github.mechrevo.control.manage">
+    <description>Change laptop hardware settings</description>
+    <description xml:lang="zh_CN">更改笔记本硬件设置</description>
+    <message>Authentication is required to change laptop hardware settings</message>
+    <message xml:lang="zh_CN">更改笔记本硬件设置需要管理员认证</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>yes</allow_active></defaults>
+  </action>
+</policyconfig>

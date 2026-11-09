@@ -1,0 +1,15 @@
+Nov 09 00:42:46 dev-pc2 kernel: mechrevo_fan_test: BEFORE main=2126 secondary=2239 temp=59 mode=0x20
+Nov 09 00:42:49 dev-pc2 kernel: mechrevo_fan_test: BOOST main=4791 secondary=4979 temp=59 mode=0x60
+Nov 09 00:42:51 dev-pc2 kernel: mechrevo_fan_test: BOOST main=4845 secondary=5014 temp=59 mode=0x60
+Nov 09 00:42:53 dev-pc2 kernel: mechrevo_fan_test: BOOST main=4856 secondary=5014 temp=58 mode=0x60
+Nov 09 00:42:55 dev-pc2 kernel: mechrevo_fan_test: BOOST main=4856 secondary=5002 temp=58 mode=0x60
+Nov 09 00:42:57 dev-pc2 kernel: mechrevo_fan_test: BOOST main=4845 secondary=5014 temp=58 mode=0x60
+Nov 09 00:42:57 dev-pc2 kernel: mechrevo_fan_test: test_result=0
+Nov 09 00:42:57 dev-pc2 kernel: mechrevo_fan_test: BOOST_RESTORED bit=0
+Nov 09 00:42:57 dev-pc2 kernel: mechrevo_fan_test: GATE_RESTORED bit=0
+Nov 09 00:42:59 dev-pc2 kernel: mechrevo_fan_test: AFTER main=2859 secondary=2994 temp=57 mode=0x20
+Nov 09 00:43:01 dev-pc2 kernel: mechrevo_fan_test: AFTER main=2688 secondary=2822 temp=57 mode=0x20
+Nov 09 00:43:03 dev-pc2 kernel: mechrevo_fan_test: AFTER main=2453 secondary=2658 temp=57 mode=0x20
+Nov 09 00:43:06 dev-pc2 kernel: mechrevo_fan_test: AFTER main=2269 secondary=2401 temp=57 mode=0x20
+Nov 09 00:43:08 dev-pc2 kernel: mechrevo_fan_test: AFTER main=2093 secondary=2209 temp=56 mode=0x20
+Nov 09 00:43:22 dev-pc2 kernel: mechrevo_fan_test: unloaded restore=0

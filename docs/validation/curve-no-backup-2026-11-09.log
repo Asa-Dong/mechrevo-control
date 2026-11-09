@@ -1,0 +1,8 @@
+fan_curve=50 50 50 50 100 80 80 80 80 100 elapsed 10118 ms
+fan_control=auto elapsed 1545 ms
+fan_control=curve elapsed 2504 ms
+fan_control=curve elapsed 210 ms
+control=release elapsed 1158 ms
+fan_control=curve elapsed 2664 ms
+PASS: curve apply, auto, reapply, no-op, release and service stop without table rollback
+control=release elapsed 4 ms

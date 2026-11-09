@@ -1,0 +1,25 @@
+[312009.720962] NVRM: nvAssertFailedNoLog: Assertion failed: 0 @ osapi.c:2145
+[312009.720988] NVRM: nvAssertFailedNoLog: Assertion failed: 0 @ osapi.c:2145
+[312009.858997] mechrevo_probe: barebone_id offset=0x0740 value=0x1a
+[312009.871401] mechrevo_probe: rgb_mode offset=0x0767 value=0x00
+[312009.883806] mechrevo_probe: rgb_red offset=0x0769 value=0x00
+[312009.896194] mechrevo_probe: rgb_green offset=0x076a value=0x32
+[312009.908412] mechrevo_probe: rgb_blue offset=0x076b value=0x32
+[312009.920647] mechrevo_probe: fan_table_split offset=0x07c5 value=0x08
+[312009.932877] mechrevo_probe: fan_table_enable offset=0x07c6 value=0x00
+[312009.945094] mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+[312009.957474] mechrevo_probe: keyboard_status offset=0x078c value=0x80
+[312009.970040] mechrevo_probe: capabilities offset=0x078e value=0xec
+[312009.982426] mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+[312009.995091] mechrevo_probe: mode offset=0x0751 value=0xa0
+[312010.007480] mechrevo_probe: manual_mode offset=0x0741 value=0x80
+[312010.019710] mechrevo_probe: custom_profile offset=0x0727 value=0x00
+[312010.024847] NVRM: nvAssertFailedNoLog: Assertion failed: 0 @ osapi.c:2145
+[312010.024885] NVRM: nvAssertFailedNoLog: Assertion failed: 0 @ osapi.c:2145
+[312010.024899] NVRM: nvAssertFailedNoLog: Assertion failed: 0 @ osapi.c:2145
+[312010.032160] mechrevo_probe: main_fan_high offset=0x0464 value=0x07
+[312010.044339] mechrevo_probe: main_fan_low offset=0x0465 value=0x10
+[312010.056566] mechrevo_probe: secondary_fan_high offset=0x046c value=0x07
+[312010.068773] mechrevo_probe: secondary_fan_low offset=0x046d value=0x77
+[312010.080938] mechrevo_probe: cpu_temperature offset=0x043e value=0x36
+[312010.111012] mechrevo_probe: unloaded

@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/* WMI event observer only: no EC writes, no input injection or mode changes. */
+#include <linux/module.h>
+#include <linux/acpi.h>
+#include <linux/dmi.h>
+#include <linux/wmi.h>
+static int observed_probe(struct wmi_device *dev, const void *context)
+{
+    pr_info("mechrevo_key_probe: observer attached\n");
+    return 0;
+}
+static void observed_notify(struct wmi_device *dev, union acpi_object *obj)
+{
+    if (obj && obj->type == ACPI_TYPE_INTEGER)
+        pr_info("mechrevo_key_probe: event=0x%llx\n", obj->integer.value);
+    else
+        pr_info("mechrevo_key_probe: non-integer event\n");
+}
+static const struct wmi_device_id ids[] = {
+    { "ABBC0F72-8EA1-11D1-00A0-C90629100000", NULL }, { }
+};
+static struct wmi_driver observer = {
+    .driver = { .name = "mechrevo-key-observer" },
+    .id_table = ids,
+    .probe = observed_probe,
+    .notify = observed_notify,
+};
+static int __init start(void)
+{
+    if (!dmi_match(DMI_SYS_VENDOR, "MECHREVO") ||
+        !dmi_match(DMI_BOARD_NAME, "JIAOLONG Series-X6xR55xK")) return -ENODEV;
+    return wmi_driver_register(&observer);
+}
+static void __exit stop(void)
+{
+    wmi_driver_unregister(&observer);
+    pr_info("mechrevo_key_probe: observer removed\n");
+}
+module_init(start);
+module_exit(stop);
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Temporary read-only WMI mode key observer");

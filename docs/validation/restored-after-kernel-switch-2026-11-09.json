@@ -1,0 +1,11 @@
+{
+  "time": "2026-11-09T12:49:14.854805+08:00",
+  "kernel": "6.12.116+deb13-amd64",
+  "module_loaded": true,
+  "service_active": "active",
+  "service_enabled": "enabled",
+  "extension": "mechrevo-control@local\n  Name: Mechrevo Control\n  Description: 机械革命温度与风扇转速顶栏，键盘灯光、充电配置和性能模式控制。\n  Path: /data/home/asa/.local/share/gnome-shell/extensions/mechrevo-control@local\n  Version: 15\n  Enabled: Yes\n  State: ACTIVE\n",
+  "initramfs_refreshed": true,
+  "suspend_after_restoring": "not tested",
+  "note": "User confirmed suspend worked on 6.12.116 with isolation enabled. Isolation removed at user request. D-Bus telemetry reads successfully; no control settings changed."
+}

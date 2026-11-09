@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "cpu_temperature": {
+    "chip": "k10temp",
+    "label": "Tctl",
+    "celsius": 50.625
+  },
+  "cpu_power_watts": null,
+  "gpu": {
+    "state": "active",
+    "celsius": 43.0,
+    "watts": 5.353
+  },
+  "temperatures": [
+    {
+      "chip": "k10temp",
+      "label": "Tctl",
+      "celsius": 50.625
+    },
+    {
+      "chip": "mechrevo",
+      "label": "CPU EC",
+      "celsius": 51.0
+    },
+    {
+      "chip": "spd5118",
+      "label": "temp1_input",
+      "celsius": 0.0
+    },
+    {
+      "chip": "amdgpu",
+      "label": "edge",
+      "celsius": 48.0
+    },
+    {
+      "chip": "nvme",
+      "label": "Sensor 2",
+      "celsius": 36.85
+    },
+    {
+      "chip": "nvme",
+      "label": "Composite",
+      "celsius": 39.85
+    },
+    {
+      "chip": "nvme",
+      "label": "Sensor 1",
+      "celsius": 39.85
+    },
+    {
+      "chip": "acpitz",
+      "label": "temp1_input",
+      "celsius": 51.0
+    },
+    {
+      "chip": "acpitz",
+      "label": "temp2_input",
+      "celsius": 50.6
+    },
+    {
+      "chip": "spd5118",
+      "label": "temp1_input",
+      "celsius": 0.0
+    },
+    {
+      "chip": "mt7921_phy0",
+      "label": "temp1_input",
+      "celsius": 48.0
+    }
+  ],
+  "fans": [
+    {
+      "chip": "mechrevo",
+      "label": "Main",
+      "rpm": 1654
+    },
+    {
+      "chip": "mechrevo",
+      "label": "Secondary",
+      "rpm": 1737
+    }
+  ],
+  "keyboard_lights": [],
+  "batteries": [
+    {
+      "id": "BAT0",
+      "percent": 100,
+      "status": "Full",
+      "charge_start": null,
+      "charge_end": null
+    }
+  ],
+  "platform_profile": null,
+  "platform_profile_choices": [],
+  "control_backend": "mechrevo-sysfs-v1",
+  "vendor": {
+    "control": "active",
+    "mode": "office",
+    "fan_boost": 0,
+    "fan_control": "auto",
+    "fan_curve": "30 40 60 80 100 30 40 60 80 100",
+    "fan1_percent": 27,
+    "fan2_percent": 27,
+    "keyboard_brightness": 4,
+    "keyboard_rgb": "0 50 50",
+    "charging_profile": "stationary",
+    "last_error": 0
+  }
+}

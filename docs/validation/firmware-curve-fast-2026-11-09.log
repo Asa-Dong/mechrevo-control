@@ -1,0 +1,20 @@
+Set fan_curve elapsed: 4 ms
+Set fan_curve elapsed: 11023 ms
+Zig stopped: mode=curve RPM=2833/3223 temp=46000
+Zig stopped: mode=curve RPM=2833/3605 temp=45000
+Zig stopped: mode=curve RPM=2837/3949 temp=45000
+Zig stopped: mode=curve RPM=2837/4244 temp=44000
+Zig stopped: mode=curve RPM=2826/4244 temp=44000
+Zig stopped: mode=curve RPM=2833/4236 temp=44000
+Zig stopped: mode=curve RPM=2829/4244 temp=44000
+Zig stopped: mode=curve RPM=2826/4236 temp=43000
+Zig stopped: mode=curve RPM=2826/4244 temp=43000
+Zig stopped: mode=curve RPM=2826/4236 temp=43000
+Set fan_curve elapsed: 1381 ms
+Set fan_control elapsed: 10508 ms
+Set fan_control elapsed: 11473 ms
+Set mode elapsed: 10368 ms
+Set control elapsed: 240 ms
+Set fan_control elapsed: 11188 ms
+PASS: EC curve runs with Zig stopped, independent targets, mode transitions, exact table/flag restoration, service stop restoration
+Set control elapsed: 5 ms

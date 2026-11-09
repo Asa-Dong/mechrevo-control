@@ -1,0 +1,5 @@
+0/0 command: RPM=544/512 CPU=43000
+0/0 command: RPM=0/0 CPU=44000
+0/0 command: RPM=0/0 CPU=44000
+0/0 command: RPM=0/0 CPU=44000
+PASS: independent 0% commands accepted, actual RPM recorded, restored

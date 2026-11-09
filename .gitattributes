@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.zip binary
+*.gz binary
+
+# Keep original diagnostic logs unchanged.
+*.log -whitespace

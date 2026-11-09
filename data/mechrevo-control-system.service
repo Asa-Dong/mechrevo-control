@@ -1,0 +1,27 @@
+[Unit]
+Description=Mechrevo hardware control service
+After=dbus.service modprobe@nvidia.service nvidia-persistenced.service
+Wants=modprobe@nvidia.service
+
+[Service]
+Type=dbus
+BusName=io.github.mechrevo.Control1
+ExecStart=/usr/local/libexec/mechrevo-control --system
+User=root
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=no
+DevicePolicy=closed
+# Match the registered device group, including GPU nodes created after startup.
+DeviceAllow=char-nvidia rw
+RestrictAddressFamilies=AF_UNIX
+CapabilityBoundingSet=
+ReadWritePaths=/sys/devices
+
+[Install]
+WantedBy=multi-user.target

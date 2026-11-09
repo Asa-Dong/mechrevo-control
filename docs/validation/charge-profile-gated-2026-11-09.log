@@ -1,0 +1,35 @@
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: mode offset=0x0751 value=0x20
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: manual_mode offset=0x0741 value=0x80
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: custom_profile offset=0x0727 value=0x00
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: main_fan_high offset=0x0464 value=0x07
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: main_fan_low offset=0x0465 value=0x57
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: secondary_fan_high offset=0x046c value=0x07
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: secondary_fan_low offset=0x046d value=0xc5
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: cpu_temperature offset=0x043e value=0x36
+Nov 09 00:29:01 dev-pc2 kernel: mechrevo_probe: unloaded
+Nov 09 00:36:53 dev-pc2 kernel: mechrevo_charge_test: BEFORE raw=0x01 profile=0
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: READBACK raw=0x01 profile=0
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: switch_result=-5
+Nov 09 00:36:54 dev-pc2 kernel: mechrevo_charge_test: RESTORED raw=0x01 profile=0
+Nov 09 00:37:32 dev-pc2 kernel: mechrevo_charge_test: BEFORE raw=0x01 profile=0
+Nov 09 00:37:32 dev-pc2 kernel: mechrevo_charge_test: GATE_BEFORE raw=0x80
+Nov 09 00:37:32 dev-pc2 kernel: mechrevo_charge_test: GATE_ENABLED raw=0x81
+Nov 09 00:37:33 dev-pc2 kernel: mechrevo_charge_test: READBACK raw=0x21 profile=2
+Nov 09 00:37:33 dev-pc2 kernel: mechrevo_charge_test: switch_result=0
+Nov 09 00:37:33 dev-pc2 kernel: mechrevo_charge_test: RESTORED raw=0x01 profile=0
+Nov 09 00:37:33 dev-pc2 kernel: mechrevo_charge_test: GATE_RESTORED raw=0x80
+Nov 09 00:37:39 dev-pc2 kernel: mechrevo_charge_test: unloaded restore_pending=0 gate_pending=0
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: barebone_id offset=0x0740 value=0x1a
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: keyboard_status offset=0x078c value=0x80
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: capabilities offset=0x078e value=0xec
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: mode offset=0x0751 value=0x20
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: manual_mode offset=0x0741 value=0x80
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: custom_profile offset=0x0727 value=0x00
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: main_fan_high offset=0x0464 value=0x07
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: main_fan_low offset=0x0465 value=0xbd
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: secondary_fan_high offset=0x046c value=0x08
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: secondary_fan_low offset=0x046d value=0x31
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: cpu_temperature offset=0x043e value=0x39
+Nov 09 00:37:40 dev-pc2 kernel: mechrevo_probe: unloaded

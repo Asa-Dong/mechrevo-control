@@ -1,0 +1,1 @@
+PASS: manual stays active without heartbeat beyond 120s; explicit release restores

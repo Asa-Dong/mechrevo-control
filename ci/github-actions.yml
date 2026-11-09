@@ -1,0 +1,24 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    container: debian:13
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install build tools
+        run: |
+          apt-get update
+          apt-get install -y build-essential libsystemd-dev pkg-config python3 curl xz-utils zip dbus gjs shellcheck clang-format linux-headers-amd64
+          curl -fsSLo /tmp/zig.tar.xz https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
+          echo '24aeeec8af16c381934a6cd7d95c807a8cb2cf7df9fa40d359aa884195c4716c  /tmp/zig.tar.xz' | sha256sum -c -
+          tar -xJf /tmp/zig.tar.xz -C /opt
+          echo /opt/zig-x86_64-linux-0.14.1 >> "$GITHUB_PATH"
+      - name: Check and package
+        run: |
+          sh scripts/check.sh
+          sh scripts/package.sh
+          headers=$(find /usr/src -maxdepth 1 -type d -name 'linux-headers-*-amd64' | sort -V | tail -1)
+          make -C "$headers" M="$PWD/driver" W=1 modules

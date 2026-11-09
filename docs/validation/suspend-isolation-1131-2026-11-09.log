@@ -1,0 +1,52 @@
+Nov 09 11:30:07 dev-pc2 systemd-journald[625]: System Journal (/var/log/journal/d8cf612ec42e4249ac5931a4c77f906d) is 3.6G, max 4G, 368.6M free.
+Nov 09 11:30:07 dev-pc2 systemd-journald[625]: Received client request to rotate journal, rotating.
+Nov 09 11:30:07 dev-pc2 systemd-journald[625]: Deleted archived journal /var/log/journal/d8cf612ec42e4249ac5931a4c77f906d/system@a5b4921a9db94c3d94416578cc0db3a8-00000000011f7016-00065863106c2725.journal (49M).
+Nov 09 11:30:07 dev-pc2 systemd-journald[625]: Vacuuming done, freed 49M of archived journals from /var/log/journal/d8cf612ec42e4249ac5931a4c77f906d.
+Nov 09 11:30:07 dev-pc2 sudo[28936]: pam_unix(sudo:session): session closed for user root
+Nov 09 11:30:07 dev-pc2 sudo[28941]:      asa : PWD=/data/home/asa ; USER=root ; COMMAND=/usr/bin/journalctl --vacuum-size=1
+Nov 09 11:30:07 dev-pc2 sudo[28941]: pam_unix(sudo:session): session opened for user root(uid=0) by asa(uid=1000)
+Nov 09 11:30:07 dev-pc2 sudo[28941]: pam_unix(sudo:session): session closed for user root
+Nov 09 11:30:07 dev-pc2 sudo[28944]:      asa : PWD=/data/home/asa ; USER=root ; COMMAND=/usr/bin/journalctl --disk-usage
+Nov 09 11:30:07 dev-pc2 sudo[28944]: pam_unix(sudo:session): session opened for user root(uid=0) by asa(uid=1000)
+Nov 09 11:30:07 dev-pc2 sudo[28944]: pam_unix(sudo:session): session closed for user root
+Nov 09 11:30:20 dev-pc2 node[1639]: 2026-11-09T11:30:20.094+08:00 [bonjour] watchdog detected non-announced service; attempting re-advertise (gateway fqdn=dev-pc2 (OpenClaw)._openclaw-gw._tcp.local. host=openclaw.local. port=18789 state=probing)
+Nov 09 11:30:21 dev-pc2 moshi-hook[1637]: time=2026-11-09T11:30:21.941+08:00 level=INFO msg="ws bridge connected" hostId=host_62c49e0de6d8430e8a198ef9072670c2
+Nov 09 11:30:31 dev-pc2 google-chrome.desktop[15909]: [15903:15941:1109/113031.380893:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+Nov 09 11:30:51 dev-pc2 moshi-hook[1637]: time=2026-11-09T11:30:51.758+08:00 level=WARN msg="ws bridge dropped" err="failed to get reader: failed to read frame header: EOF" backoff=30s
+Nov 09 11:31:12 dev-pc2 systemd-logind[1185]: The system will suspend now!
+Nov 09 11:31:12 dev-pc2 ModemManager[1348]: <msg> [sleep-monitor-systemd] system is about to suspend
+Nov 09 11:31:12 dev-pc2 google-chrome.desktop[15909]: [15903:15941:1109/113112.550142:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:474] ConnectionHandler failed with net error: -2
+Nov 09 11:31:12 dev-pc2 dbus-daemon[1142]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.15' (uid=0 pid=1312 comm="/usr/sbin/NetworkManager --no-daemon" label="unconfined")
+Nov 09 11:31:12 dev-pc2 systemd[1]: Starting NetworkManager-dispatcher.service - Network Manager Script Dispatcher Service...
+Nov 09 11:31:12 dev-pc2 dbus-daemon[1142]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'
+Nov 09 11:31:12 dev-pc2 systemd[1]: Started NetworkManager-dispatcher.service - Network Manager Script Dispatcher Service.
+Nov 09 11:31:12 dev-pc2 kernel: wlp2s0: deauthenticating from 50:4f:3b:15:76:f5 by local choice (Reason: 3=DEAUTH_LEAVING)
+Nov 09 11:31:13 dev-pc2 wpa_supplicant[1314]: wlp2s0: CTRL-EVENT-DISCONNECTED bssid=50:4f:3b:15:76:f5 reason=3 locally_generated=1
+Nov 09 11:31:13 dev-pc2 wpa_supplicant[1314]: wlp2s0: CTRL-EVENT-DSCP-POLICY clear_all
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Withdrawing address record for fdca:6bbb:3d05:0:a2ef:42:3735:7bcd on wlp2s0.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Leaving mDNS multicast group on interface wlp2s0.IPv6 with address fdca:6bbb:3d05:0:a2ef:42:3735:7bcd.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Joining mDNS multicast group on interface wlp2s0.IPv6 with address fe80::7368:7dc4:921b:880b.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Registering new address record for fe80::7368:7dc4:921b:880b on wlp2s0.*.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Withdrawing address record for fe80::7368:7dc4:921b:880b on wlp2s0.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Leaving mDNS multicast group on interface wlp2s0.IPv6 with address fe80::7368:7dc4:921b:880b.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Interface wlp2s0.IPv6 no longer relevant for mDNS.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Interface wlp2s0.IPv4 no longer relevant for mDNS.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Leaving mDNS multicast group on interface wlp2s0.IPv4 with address 192.168.2.202.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Withdrawing address record for 192.168.2.202 on wlp2s0.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Joining mDNS multicast group on interface wlp2s0.IPv4 with address 192.168.2.202.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: New relevant interface wlp2s0.IPv4 for mDNS.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Registering new address record for 192.168.2.202 on wlp2s0.IPv4.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Withdrawing address record for 192.168.2.202 on wlp2s0.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Leaving mDNS multicast group on interface wlp2s0.IPv4 with address 192.168.2.202.
+Nov 09 11:31:13 dev-pc2 avahi-daemon[1137]: Interface wlp2s0.IPv4 no longer relevant for mDNS.
+Nov 09 11:31:13 dev-pc2 dnsmasq[1775]: no servers found in /etc/resolv.conf, will retry
+Nov 09 11:31:13 dev-pc2 dnsmasq[1883]: no servers found in /etc/resolv.conf, will retry
+Nov 09 11:31:13 dev-pc2 systemd[1]: Reached target sleep.target - Sleep.
+Nov 09 11:31:13 dev-pc2 systemd[1]: Starting systemd-suspend.service - System Suspend...
+Nov 09 11:31:13 dev-pc2 wpa_supplicant[1314]: p2p-dev-wlp2s0: CTRL-EVENT-DSCP-POLICY clear_all
+Nov 09 11:31:13 dev-pc2 wpa_supplicant[1314]: p2p-dev-wlp2s0: CTRL-EVENT-DSCP-POLICY clear_all
+Nov 09 11:31:13 dev-pc2 wpa_supplicant[1314]: nl80211: deinit ifname=p2p-dev-wlp2s0 disabled_11b_rates=0
+Nov 09 11:31:13 dev-pc2 systemd-sleep[29011]: User sessions remain unfrozen on explicit request ($SYSTEMD_SLEEP_FREEZE_USER_SESSIONS=0).
+Nov 09 11:31:13 dev-pc2 systemd-sleep[29011]: This is not recommended, and might result in unexpected behavior, particularly
+Nov 09 11:31:13 dev-pc2 systemd-sleep[29011]: in suspend-then-hibernate operations or setups with encrypted home directories.
+Nov 09 11:31:13 dev-pc2 systemd-sleep[29011]: Performing sleep operation 'suspend'...

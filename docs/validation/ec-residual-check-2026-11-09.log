@@ -1,0 +1,18 @@
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 0726 MMIO=00 WMI=00 00 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 0727 MMIO=00 WMI=00 00 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 0740 MMIO=1a WMI=1a 80 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 0741 MMIO=80 WMI=80 22 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 0751 MMIO=20 WMI=20 6c 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 078e MMIO=ec WMI=ec 00 00 00
+Nov 09 11:49:13 dev-pc2 kernel: mechrevo_transport_test: 07c5 MMIO=00 WMI=00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: 07c6 MMIO=00 WMI=00 0c 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: 0f20 MMIO=00 WMI=00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: 0f50 MMIO=00 WMI=00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: 1804 MMIO=ff WMI=00 32 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: 1809 MMIO=ff WMI=00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f00=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f10=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Nov 09 11:49:14 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f20=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Nov 09 11:49:15 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f30=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Nov 09 11:49:15 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f40=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Nov 09 11:49:15 dev-pc2 kernel: mechrevo_transport_test: TABLE 0f50=00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00

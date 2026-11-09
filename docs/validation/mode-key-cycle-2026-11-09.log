@@ -1,0 +1,30 @@
+[310808.650271] mechrevo_key_cycle: ready active=1 initial=a0 limit=3 timeout=180s
+[310838.944198] mechrevo_key_cycle: event=0xb0 step=1 mode=a0->30 result=0 temp=60
+[310845.191871] mechrevo_key_cycle: event=0xb0 step=2 mode=30->20 result=0 temp=60
+[310850.223602] mechrevo_key_cycle: event=0xb0 step=3 mode=20->a0 result=0 temp=60
+[310850.295594] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[310850.295602] mechrevo_key_cycle: complete restore=0
+[310857.276455] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[310857.276464] mechrevo_key_cycle: unload restore=0
+[310857.276487] mechrevo_key_cycle: restore mode=a0 gate=0 pending=0
+[310857.276489] mechrevo_key_cycle: detach restore=0
+[310857.369203] mechrevo_probe: barebone_id offset=0x0740 value=0x1a
+[310857.379332] mechrevo_probe: rgb_mode offset=0x0767 value=0x00
+[310857.391293] mechrevo_probe: rgb_red offset=0x0769 value=0x00
+[310857.403366] mechrevo_probe: rgb_green offset=0x076a value=0x32
+[310857.415245] mechrevo_probe: rgb_blue offset=0x076b value=0x32
+[310857.427301] mechrevo_probe: fan_table_split offset=0x07c5 value=0x08
+[310857.439302] mechrevo_probe: fan_table_enable offset=0x07c6 value=0x00
+[310857.451292] mechrevo_probe: keyboard_features offset=0x0766 value=0xb4
+[310857.463316] mechrevo_probe: keyboard_status offset=0x078c value=0x80
+[310857.475302] mechrevo_probe: capabilities offset=0x078e value=0xec
+[310857.487373] mechrevo_probe: charging_profile offset=0x07a6 value=0x01
+[310857.499374] mechrevo_probe: mode offset=0x0751 value=0xa0
+[310857.511363] mechrevo_probe: manual_mode offset=0x0741 value=0x80
+[310857.523351] mechrevo_probe: custom_profile offset=0x0727 value=0x00
+[310857.535355] mechrevo_probe: main_fan_high offset=0x0464 value=0x08
+[310857.547294] mechrevo_probe: main_fan_low offset=0x0465 value=0x35
+[310857.559272] mechrevo_probe: secondary_fan_high offset=0x046c value=0x08
+[310857.571264] mechrevo_probe: secondary_fan_low offset=0x046d value=0xa5
+[310857.583328] mechrevo_probe: cpu_temperature offset=0x043e value=0x3c
+[310857.642076] mechrevo_probe: unloaded

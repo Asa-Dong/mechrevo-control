@@ -1,0 +1,61 @@
+Nov 09 01:47:17 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=2867/2998 raw=103/103 temp=47
+Nov 09 01:47:19 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3032/3170 raw=111/111 temp=47
+Nov 09 01:47:22 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3175/3322 raw=118/119 temp=47
+Nov 09 01:47:24 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3322/3472 raw=126/126 temp=47
+Nov 09 01:47:26 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3477/3605 raw=133/133 temp=47
+Nov 09 01:47:28 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3698/3829 raw=140/141 temp=47
+Nov 09 01:47:30 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3816/3970 raw=148/148 temp=46
+Nov 09 01:47:33 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=3934/4091 raw=155/155 temp=46
+Nov 09 01:47:35 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4076/4227 raw=160/160 temp=46
+Nov 09 01:47:37 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4076/4227 raw=160/160 temp=45
+Nov 09 01:47:39 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4068/4236 raw=160/160 temp=45
+Nov 09 01:47:41 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4252 raw=160/160 temp=44
+Nov 09 01:47:43 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4091/4227 raw=160/160 temp=44
+Nov 09 01:47:46 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4227 raw=160/160 temp=44
+Nov 09 01:47:48 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4091/4236 raw=160/160 temp=43
+Nov 09 01:47:50 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4227 raw=160/160 temp=43
+Nov 09 01:47:52 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4244 raw=160/160 temp=43
+Nov 09 01:47:54 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4244 raw=160/160 temp=43
+Nov 09 01:47:57 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4083/4236 raw=160/160 temp=43
+Nov 09 01:47:59 dev-pc2 kernel: mechrevo_curve_test: target=80/80 rpm=4091/4227 raw=160/160 temp=43
+Nov 09 01:47:59 dev-pc2 kernel: mechrevo_curve_test: EXECUTION result=0; capability requires sustained RPM review
+Nov 09 01:48:07 dev-pc2 kernel: mechrevo_curve_test: RESTORE result=0
+Nov 09 01:48:40 dev-pc2 kernel: mechrevo_curve_test: CURVE_READY cpu_threshold=45 gpu_fixed=60; no PWM writes
+Nov 09 01:48:42 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2764/3032 raw=96/104 temp=42
+Nov 09 01:48:45 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2601/3189 raw=89/111 temp=42
+Nov 09 01:48:47 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2444/3337 raw=82/119 temp=42
+Nov 09 01:48:49 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2323/3428 raw=80/120 temp=42
+Nov 09 01:48:51 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3417 raw=80/120 temp=42
+Nov 09 01:48:53 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2331/3417 raw=80/120 temp=42
+Nov 09 01:48:56 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3422 raw=80/120 temp=43
+Nov 09 01:48:58 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3422 raw=80/120 temp=43
+Nov 09 01:49:00 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2338/3428 raw=80/120 temp=43
+Nov 09 01:49:02 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3422 raw=80/120 temp=43
+Nov 09 01:49:04 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3422 raw=80/120 temp=43
+Nov 09 01:49:06 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2338/3422 raw=80/120 temp=43
+Nov 09 01:49:09 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2321/3422 raw=80/120 temp=43
+Nov 09 01:49:11 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2333/3422 raw=80/120 temp=43
+Nov 09 01:49:13 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2338/3417 raw=80/120 temp=43
+Nov 09 01:49:15 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2341/3422 raw=80/120 temp=43
+Nov 09 01:49:17 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2326/3406 raw=80/120 temp=43
+Nov 09 01:49:20 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2326/3422 raw=80/120 temp=44
+Nov 09 01:49:22 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2346/3428 raw=80/120 temp=45
+Nov 09 01:49:24 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2333/3422 raw=80/120 temp=45
+Nov 09 01:49:26 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2336/3422 raw=80/120 temp=45
+Nov 09 01:49:28 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2331/3417 raw=80/120 temp=46
+Nov 09 01:49:30 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2333/3422 raw=80/120 temp=46
+Nov 09 01:49:33 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2328/3422 raw=80/120 temp=46
+Nov 09 01:49:35 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2326/3422 raw=80/120 temp=47
+Nov 09 01:49:37 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2406/3417 raw=86/120 temp=47
+Nov 09 01:49:39 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2582/3417 raw=93/120 temp=47
+Nov 09 01:49:41 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2739/3411 raw=100/120 temp=46
+Nov 09 01:49:44 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=2970/3422 raw=107/120 temp=45
+Nov 09 01:49:46 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3120/3411 raw=115/120 temp=45
+Nov 09 01:49:48 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3276/3428 raw=122/120 temp=45
+Nov 09 01:49:50 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3411/3417 raw=129/120 temp=44
+Nov 09 01:49:52 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3558/3422 raw=137/120 temp=44
+Nov 09 01:49:55 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3776/3411 raw=145/120 temp=43
+Nov 09 01:49:57 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=3913/3417 raw=152/120 temp=43
+Nov 09 01:49:59 dev-pc2 kernel: mechrevo_curve_test: target=40/60 rpm=4030/3417 raw=159/120 temp=43
+Nov 09 01:49:59 dev-pc2 kernel: mechrevo_curve_test: EXECUTION result=0; capability requires sustained RPM review
+Nov 09 01:50:07 dev-pc2 kernel: mechrevo_curve_test: RESTORE result=0

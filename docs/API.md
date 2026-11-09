@@ -1,0 +1,23 @@
+# D-Bus API
+
+系统总线名/接口：`io.github.mechrevo.Control1`；对象：`/io/github/mechrevo/Control1`。
+
+## GetStatus() → s
+
+返回 `schema_version=1` 的 JSON，包含 CPU 温度/功耗、GPU 状态/温度/功耗、风扇、温度传感器、电池和可空的 `vendor` 控制状态。不可用项为 `null`，列表缺失设备时为空。GPU 的 `state` 为 `active`、`suspended`、`transitioning` 或 `unavailable`。
+
+`vendor.control`：`firmware`（未接管）、`active`（已接管）、`retained`（EC 留有控制状态但当前驱动未接管）、`restore_failed`（控制错误，需用户手动恢复）。后者为既有协议名称，也用于写入错误后的状态。
+
+## Set(s setting, s value)
+
+仅系统服务接受写入；固定键值白名单、活动本地桌面会话检查与 Polkit 授权，root 可管理调用。属性列表见 [驱动接口](../driver/README.md)。`control` 对外只接受 `release`；内部按需 acquire。
+
+错误包括 `InvalidArgs`、`AccessDenied`、`io.github.mechrevo.Error.WriteFailed` 和 `io.github.mechrevo.Error.ReadFailed`。错误不会伪装成成功，也不会触发全量自动还原。
+
+```sh
+busctl --system call io.github.mechrevo.Control1 /io/github/mechrevo/Control1 io.github.mechrevo.Control1 GetStatus
+busctl --system call io.github.mechrevo.Control1 /io/github/mechrevo/Control1 io.github.mechrevo.Control1 Set ss charging_profile stationary
+busctl --system call io.github.mechrevo.Control1 /io/github/mechrevo/Control1 io.github.mechrevo.Control1 Set ss fan_curve '30 40 60 80 100 30 40 60 80 100'
+```
+
+1.0.0 不再提供预发布的 `fan_boost` 字段/写入键，使用 `fan_control=auto/boost`。服务无参数运行在用户会话总线上，仅支持只读；`--system` 为系统服务，`--once` 打印一次状态，`--version` 打印版本。

@@ -1,0 +1,5 @@
+Nov 09 00:42:02 dev-pc2 kernel: mechrevo_rgb_test: BEFORE 0,50,50 mode=0x00 gate=0
+Nov 09 00:42:10 dev-pc2 kernel: mechrevo_rgb_test: TARGET 50,0,0 result=0
+Nov 09 00:42:10 dev-pc2 kernel: mechrevo_rgb_test: COLOR_RESTORED 0,50,50
+Nov 09 00:42:10 dev-pc2 kernel: mechrevo_rgb_test: GATE_RESTORED bit=0
+Nov 09 00:42:20 dev-pc2 kernel: mechrevo_rgb_test: unloaded restore=0

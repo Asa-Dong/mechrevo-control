@@ -1,0 +1,3 @@
+Curve applied after 20 seconds; waiting for lease recovery
+Recovered after 123 seconds: control=firmware fan=auto error=0
+PASS: direct kernel percentage boundaries and firmware curve lease expiry after 123 seconds

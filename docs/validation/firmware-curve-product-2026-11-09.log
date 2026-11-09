@@ -1,0 +1,7 @@
+Zig stopped: mode=curve RPM=2829/3199 temp=43000
+Zig stopped: mode=curve RPM=2837/3581 temp=43000
+Zig stopped: mode=curve RPM=2833/3993 temp=42000
+Zig stopped: mode=curve RPM=2844/4244 temp=43000
+Zig stopped: mode=curve RPM=2840/4227 temp=43000
+Zig stopped: mode=curve RPM=2829/4244 temp=43000
+PASS: EC curve runs with Zig stopped, independent targets, mode transitions, exact table/flag restoration, service stop restoration
