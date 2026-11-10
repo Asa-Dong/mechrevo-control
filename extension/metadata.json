@@ -6,6 +6,6 @@
     "48"
   ],
   "settings-schema": "org.gnome.shell.extensions.mechrevo-control",
-  "version": 22,
-  "version-name": "1.3.0"
+  "version": 26,
+  "version-name": "1.4.2"
 }
