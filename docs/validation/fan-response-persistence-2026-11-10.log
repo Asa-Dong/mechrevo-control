@@ -1,0 +1,6 @@
+Original preference mtime_ns=1794289426542852027; hardware=0
+AFTER SET 600: hardware=600 saved=600
+AFTER SERVICE RESTART: hardware=600 saved=600
+PASS: response enable/value survive current installed service restart
+RESTORED: hardware=0 saved=0
+USER RESTORE after service restart: {"fan_response_ms": "1000", "fan_curve": "0 0 45 71 100 0 0 45 72 100", "fan_control": "curve", "mode": "office", "last_error": "0", "saved_response_ms": "1000"}

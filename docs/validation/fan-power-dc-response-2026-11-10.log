@@ -1,0 +1,7 @@
+BEFORE {"mode": "office", "fan_control": "curve", "fan_curve": "0 0 45 71 100 0 0 45 72 100", "fan1_percent": "25", "fan2_percent": "25", "fan1_input": "1500", "fan2_input": "1586", "temp1_input": "54000", "last_error": "0"}
+DC 40% sample=0 {"mode": "office", "fan_control": "curve", "fan_curve": "40 40 40 40 40 40 40 40 40 40", "fan1_percent": "33", "fan2_percent": "29", "fan1_input": "1970", "fan2_input": "1711", "temp1_input": "54000", "last_error": "0"}
+DC 40% sample=1 {"mode": "office", "fan_control": "curve", "fan_curve": "40 40 40 40 40 40 40 40 40 40", "fan1_percent": "37", "fan2_percent": "32", "fan1_input": "2158", "fan2_input": "2013", "temp1_input": "54000", "last_error": "0"}
+DC 40% sample=2 {"mode": "office", "fan_control": "curve", "fan_curve": "40 40 40 40 40 40 40 40 40 40", "fan1_percent": "40", "fan2_percent": "36", "fan1_input": "2321", "fan2_input": "2209", "temp1_input": "54000", "last_error": "0"}
+DC 40% sample=3 {"mode": "office", "fan_control": "curve", "fan_curve": "40 40 40 40 40 40 40 40 40 40", "fan1_percent": "40", "fan2_percent": "40", "fan1_input": "2346", "fan2_input": "2395", "temp1_input": "54000", "last_error": "0"}
+PASS: DC curve request converged to 40% on both fans
+RESTORED {"mode": "office", "fan_control": "curve", "fan_curve": "0 0 45 71 100 0 0 45 72 100", "fan1_percent": "32", "fan2_percent": "32", "fan1_input": "1989", "fan2_input": "2097", "temp1_input": "54000", "last_error": "0"}
