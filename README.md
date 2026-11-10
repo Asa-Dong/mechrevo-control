@@ -133,6 +133,8 @@ gnome-extensions uninstall mechrevo-control@local
 | [TUXEDO tuxedo-drivers](https://gitlab.com/tuxedocomputers/development/packages/tuxedo-drivers) | `v4.25.0_rc` 的 Uniwill WMI/EC 协议、控制字段与风扇事务；上游 GPL-2.0-or-later |
 | [sklynic/pkgbuild-mechrevo-driver-dkms-16-pro](https://github.com/sklynic/pkgbuild-mechrevo-driver-dkms-16-pro) | 机械革命机型匹配、补丁、键盘事件与 DKMS 打包参考；固定提交 `af56c84451d6e003267a886183b7deb94ec4476a` |
 | [nemoiwkryang/Open-Mechrevo-FanSlider](https://github.com/nemoiwkryang/Open-Mechrevo-FanSlider) | EC RAM 曲线表、启用位、CPU/GPU 通道命名；MIT，固定提交 `c6665cfc15b7ceb0d08111ea317d9ceccc2feb2e` |
+| [Leo-stro/mechrevo-charge-limit](https://github.com/Leo-stro/mechrevo-charge-limit) | 电池百分比限充、EC 阈值与平台门控协议调查；MIT，固定提交 `75a8061472a2b9ca07b49f35601c21ba4c735c1f` |
+| [faintonce/open-revo](https://github.com/faintonce/open-revo) | 限充持续门控、上限减 5% 的恢复点，以及键盘灯控与机型能力识别参考；GPL-3.0，固定提交 `b7d2b526e60cd04965eadab21e606bdb1e1aa56e` |
 | [Linux Uniwill 驱动](https://github.com/torvalds/linux/tree/master/drivers/platform/x86/uniwill) | hwmon 转速读取与平台驱动结构参考 |
 
 本项目不是完整 TUXEDO 驱动的直接打包，参考协议均结合本机诊断验证。第三方克隆不随仓库或发布包分发，恢复方式见 [references/README.md](references/README.md)。已有代码中的上游版权声明予以保留。
