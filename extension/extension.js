@@ -21,10 +21,12 @@ export default class MechrevoControl extends Extension {
         this._cancellable = new Gio.Cancellable();
         this._bus = Gio.DBus.system;
         this._brightnessRevision = 0;
+        this._settingsRevision = 0;
         this._pending = false;
         this._writing = false;
         this._data = null;
         this._error = '';
+        this._readError = '';
         this._buttons = [];
         this._sliders = [];
         this._sliderTimers = new Map();
@@ -88,16 +90,61 @@ export default class MechrevoControl extends Extension {
         const box = new St.BoxLayout({style: 'spacing: 6px;'});
         for (const [value, label] of choices) {
             const button = new St.Button({
-                label, style_class: 'button', can_focus: true, reactive: true,
-                accessible_name: `${title}：${label}`, style: 'padding: 6px 10px; border-radius: 8px;',
+                label, style_class: 'button', can_focus: true, reactive: true, track_hover: true,
+                accessible_name: `${title}：${label}${setting === 'charging_profile' ? `（${{high_capacity: 100, balanced: 80, stationary: 60}[value]}%）` : ''}`,
+                style: 'padding: 6px 10px; border-radius: 8px;',
             });
             button.connect('clicked', () => this._set(setting, value));
+            if (setting === 'charging_profile') {
+                button.connect('notify::hover', () => {
+                    this._hideChargeTooltip();
+                    if (button.hover) {
+                        this._chargeTooltipTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                            this._chargeTooltipTimer = 0;
+                            if (this._active && button.hover && this._button.menu.isOpen)
+                                this._showChargeTooltip(button, value);
+                            return GLib.SOURCE_REMOVE;
+                        });
+                    }
+                });
+            }
             box.add_child(button);
             this._buttons.push({button, setting, value});
         }
         row.add_child(box);
         this._button.menu.addMenuItem(row);
         row.remove_style_pseudo_class('insensitive');
+    }
+
+    _chargeTooltipText(value) {
+        return {high_capacity: '上限100%', balanced: '上限80% · 75%恢复', stationary: '上限60% · 55%恢复'}[value];
+    }
+
+    _showChargeTooltip(button, value) {
+        this._hideChargeTooltip();
+        this._chargeTooltipValue = value;
+        this._chargeTooltip = new St.Label({text: this._chargeTooltipText(value), style_class: 'dash-label', reactive: false});
+        this._chargeTooltip.clutter_text.set_single_line_mode(false);
+        Main.layoutManager.addTopChrome(this._chargeTooltip, {affectsInputRegion: false});
+        this._chargeTooltip.show();
+        const [x, y] = button.get_transformed_position();
+        const [width] = button.get_transformed_size();
+        const monitor = Main.layoutManager.findMonitorForActor(button) ?? Main.layoutManager.primaryMonitor;
+        const [, tooltipWidth] = this._chargeTooltip.get_preferred_width(-1);
+        const [, tooltipHeight] = this._chargeTooltip.get_preferred_height(tooltipWidth);
+        this._chargeTooltip.set_position(
+            Math.round(Math.max(monitor.x + 8, Math.min(x + width / 2 - tooltipWidth / 2, monitor.x + monitor.width - tooltipWidth - 8))),
+            Math.round(Math.max(monitor.y + 8, y - tooltipHeight - 8)));
+    }
+
+    _hideChargeTooltip() {
+        if (this._chargeTooltipTimer) GLib.source_remove(this._chargeTooltipTimer);
+        this._chargeTooltipTimer = 0;
+        if (this._chargeTooltip) {
+            Main.layoutManager.removeChrome(this._chargeTooltip);
+            this._chargeTooltip.destroy();
+            this._chargeTooltip = null;
+        }
     }
 
     _sliderText(setting, n) {
@@ -185,7 +232,10 @@ export default class MechrevoControl extends Extension {
         this._slider('绿 G', 'keyboard_rgb', 0, 50, 1, keyboardMenu);
         this._slider('蓝 B', 'keyboard_rgb', 0, 50, 2, keyboardMenu);
         this._button.menu.connect('open-state-changed', (_menu, open) => {
-            if (!open) this._keyboardMenu.setSubmenuShown(false);
+            if (!open) {
+                this._keyboardMenu.setSubmenuShown(false);
+                this._hideChargeTooltip();
+            }
         });
         this._choices('电池模式', 'charging_profile', [['high_capacity', '长效'], ['balanced', '平衡'], ['stationary', '工作站']]);
 
@@ -193,6 +243,7 @@ export default class MechrevoControl extends Extension {
         this._feedback.label.style = 'font-size: 0.9em; min-height: 22px;';
         this._details = new PopupMenu.PopupSubMenuMenuItem('更多信息');
         this._button.menu.addMenuItem(this._details);
+        this._chargeState = this._row('', this._details.menu);
         this._details.menu.actor.style = 'max-height: 220px;';
         this._details.menu.actor.connect('notify::vscrollbar-policy', actor => {
             if (actor.vscrollbar_policy !== St.PolicyType.AUTOMATIC)
@@ -216,6 +267,9 @@ export default class MechrevoControl extends Extension {
 
     _updateDetails() {
         if (!this._data) return;
+        const battery = this._data.batteries?.[0];
+        const batteryStatus = {Charging: '充电中', Discharging: '放电中', Full: '已充满', 'Not charging': '未充电'}[battery?.status] ?? '状态未知';
+        this._chargeState.label.text = `电量 ${battery?.percent ?? '-'}% · ${batteryStatus} · ${battery?.current_ua == null ? '-' : Math.round(battery.current_ua / 1000)} mA`;
         // Show useful device readings; CPU is already in the summary.
         // Prefer the SSD composite reading over its internal sensor channels.
         const deviceName = t => {
@@ -253,10 +307,11 @@ export default class MechrevoControl extends Extension {
         const v = d?.vendor;
         const writable = Boolean(v && this._bus === Gio.DBus.system && !this._writing);
         for (const {button, setting, value} of this._buttons) {
-            button.reactive = writable && v?.[setting] != null;
+            const supported = v?.[setting] != null && (setting !== 'charging_profile' || v?.charge_limit != null);
+            button.reactive = writable && supported;
             button.can_focus = button.reactive;
-            button.opacity = this._bus === Gio.DBus.system && v?.[setting] != null ? 255 : 120;
-            const selected = String(v?.[setting]) === value;
+            button.opacity = this._bus === Gio.DBus.system && supported ? 255 : 120;
+            const selected = supported && String(v?.[setting]) === value;
             button.style = 'padding: 6px 10px; border-radius: 8px;' + (selected ? ' background-color: #3584e4; color: white;' : '');
             if (selected) button.add_style_pseudo_class('checked');
             else button.remove_style_pseudo_class('checked');
@@ -281,10 +336,12 @@ export default class MechrevoControl extends Extension {
         this._curveInfo.visible = v?.fan_control === 'curve';
 
         this._release.setSensitive(writable);
-        const message = this._writing ? '正在应用设置…' : this._error || (v?.control === 'restore_failed' ? '控制出错，请手动恢复' : '') || (!v ? '控制驱动不可用' : this._bus !== Gio.DBus.system ? '只读模式：系统服务未连接' : '');
+        const message = this._writing ? '正在应用设置…' : this._error || this._readError || (v?.control === 'restore_failed' ? '控制出错，请手动恢复' : '') || (!v ? '控制驱动不可用' : this._bus !== Gio.DBus.system ? '只读模式：系统服务未连接' : '');
         // Reserve one line: showing/hiding feedback moves the whole popup.
         this._feedback.label.text = message || ' ';
         this._feedback.visible = true;
+        if (this._chargeTooltip)
+            this._chargeTooltip.text = this._chargeTooltipText(this._chargeTooltipValue);
         if (!d) return;
         const temp = d.cpu_temperature?.celsius;
         const fans = d.fans.filter(f => f.chip === 'mechrevo');
@@ -309,12 +366,17 @@ export default class MechrevoControl extends Extension {
         const cancellable = this._cancellable;
         const bus = this._bus;
         const brightnessRevision = this._brightnessRevision;
+        const settingsRevision = this._settingsRevision;
         bus.call(NAME, PATH, NAME, 'GetStatus', null, new GLib.VariantType('(s)'),
             Gio.DBusCallFlags.NONE, 5000, cancellable, (connection, result) => {
                 let reply, error;
                 try { reply = connection.call_finish(result); } catch (e) { error = e; }
                 if (!this._active || this._cancellable !== cancellable) return;
                 this._pending = false;
+                if (error && settingsRevision !== this._settingsRevision) {
+                    if (!this._writing) this._refresh();
+                    return;
+                }
                 if (error) {
                     const remote = Gio.DBusError.get_remote_error(error);
                     if (bus === Gio.DBus.system && ['org.freedesktop.DBus.Error.ServiceUnknown', 'org.freedesktop.DBus.Error.NameHasNoOwner'].includes(remote)) {
@@ -322,20 +384,26 @@ export default class MechrevoControl extends Extension {
                         this._refresh(false);
                         return;
                     }
-                    this._error = '硬件读取失败，请稍后重试';
+                    this._readError = '硬件读取失败，请稍后重试';
                     this._data = null;
                     this._label.text = '硬件离线';
                 } else {
                     try {
                         const data = JSON.parse(reply.deep_unpack()[0]);
+                        // A request started before a confirmed write cannot revert its result.
+                        if (settingsRevision !== this._settingsRevision && this._data?.vendor)
+                            data.vendor = this._data.vendor;
                         // A status read started before a write must not undo its newer brightness.
                         if (brightnessRevision !== this._brightnessRevision && data.vendor && this._data?.vendor)
                             data.vendor.keyboard_brightness = this._data.vendor.keyboard_brightness;
                         this._data = data;
+                        this._readError = '';
                     }
-                    catch (_e) { this._error = '硬件数据格式异常'; this._data = null; }
+                    catch (_e) { this._readError = '硬件数据格式异常'; this._data = null; }
                 }
                 this._sync();
+                if (settingsRevision !== this._settingsRevision && !this._writing)
+                    this._refresh();
             });
     }
 
@@ -351,6 +419,7 @@ export default class MechrevoControl extends Extension {
         if (!this._data?.vendor || this._bus !== Gio.DBus.system) return;
         if (this._writing) { this._queued.set(setting, value); return; }
         if (this._keyboardIdle?.busy) { this._error = '键盘灯光正在切换，请稍后重试'; this._sync(); return; }
+        this._settingsRevision++;
         this._writing = true;
         this._error = '';
         this._sync();
@@ -366,8 +435,16 @@ export default class MechrevoControl extends Extension {
                     this._keyboardIdle?.forget();
                     this._brightnessRevision++;
                 }
-                if (!error && this._data?.vendor && setting !== 'charging_profile') {
+                if (!error) this._settingsRevision++;
+                if (!error && this._data?.vendor) {
                     this._data.vendor[setting] = ['keyboard_brightness', 'fan1_percent', 'fan2_percent'].includes(setting) ? Number(value) : value;
+                    if (setting === 'charging_profile') {
+                        const limit = {high_capacity: 100, balanced: 80, stationary: 60}[value];
+                        Object.assign(this._data.vendor, {
+                            charge_limit: limit, charge_resume: limit === 100 ? 0 : limit - 5,
+                            charge_gate: limit === 100 ? 0 : 1, charge_reached: null,
+                        });
+                    }
                 }
                 for (const e of this._sliders) {
                     if (e.setting === setting && !this._queued.has(setting) && !this._sliderTimers.has(setting)) e.dirty = false;
@@ -409,6 +486,7 @@ export default class MechrevoControl extends Extension {
         this._queued.clear();
         this._cancellable?.cancel();
         this._cancellable = null;
+        this._hideChargeTooltip();
         this._button?.destroy();
         this._button = null;
         this._buttons = [];

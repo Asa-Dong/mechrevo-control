@@ -13,9 +13,68 @@ export async function run() {
     const ext = new Control({uuid: 'mechrevo-ui-test', path: dir.get_path(), dir, 'settings-schema': 'org.gnome.shell.extensions.mechrevo-control'});
     ext.enable();
     try {
-        await Scripting.sleep(1800);
+        for (let i = 0; i < 60 && (!ext._data?.vendor || ext._pending); i++) await Scripting.sleep(100);
         if (!ext._data?.vendor) throw new Error('Missing real status');
+        // A recovered status request clears read failures but preserves write errors.
+        ext._readError = '硬件读取失败，请稍后重试';
+        ext._error = '设置失败，请重试';
+        ext._refresh();
+        for (let i = 0; i < 60 && (ext._readError || ext._pending); i++) await Scripting.sleep(100);
+        if (ext._readError || ext._error !== '设置失败，请重试')
+            throw new Error('Status recovery did not isolate read and write errors');
+        ext._error = '';
+        // Stub the actual D-Bus connection before exercising write acknowledgments.
+        const systemBus = Gio.DBus.system;
+        const realCall = systemBus.call;
+        const requests = [];
+        const fakeCall = (...args) => requests.push({method: args[3], callback: args.at(-1)});
+        const savedData = JSON.parse(JSON.stringify(ext._data));
+        const reply = (request, value) => request.callback({call_finish: () => value}, null);
+        try {
+            systemBus.call = fakeCall;
+            if (Gio.DBus.system.call !== fakeCall || ext._bus.call !== fakeCall)
+                throw new Error('D-Bus stub must intercept every test write');
+            Object.assign(ext._data.vendor, {charging_profile: 'high_capacity', charge_limit: 100, charge_resume: 0, charge_gate: 0});
+            const staleData = JSON.parse(JSON.stringify(ext._data));
+            ext._refresh();
+            const oldRead = requests.shift();
+            ext._set('charging_profile', 'balanced');
+            const write = requests.shift();
+            if (oldRead?.method !== 'GetStatus' || write?.method !== 'Set' || !ext._writing || ext._data.vendor.charging_profile !== 'high_capacity')
+                throw new Error('Battery selection changed before hardware confirmation');
+            reply(write, new GLib.Variant('()', []));
+            const balanced = ext._buttons.find(e => e.setting === 'charging_profile' && e.value === 'balanced');
+            if (ext._writing || ext._data.vendor.charging_profile !== 'balanced' || !balanced.button.reactive || !balanced.button.has_style_pseudo_class('checked'))
+                throw new Error('Confirmed battery selection waits for a status refresh');
+            reply(oldRead, new GLib.Variant('(s)', [JSON.stringify(staleData)]));
+            if (ext._data.vendor.charging_profile !== 'balanced')
+                throw new Error('Stale status reverted a confirmed battery selection');
+            const freshRead = requests.shift();
+            if (freshRead?.method !== 'GetStatus') throw new Error('Stale status did not request a fresh snapshot');
+            reply(freshRead, new GLib.Variant('(s)', [JSON.stringify(ext._data)]));
+        } finally {
+            systemBus.call = realCall;
+            ext._data = savedData;
+            ext._writing = false;
+            ext._pending = false;
+            ext._sync();
+        }
         ext._refresh = () => {}; // Keep deterministic UI fixtures after the initial real read.
+        // Older backends must not present raw profile bits as working percentage limits.
+        ext._data.vendor.charge_limit = null;
+        ext._sync();
+        if (ext._buttons.some(e => e.setting === 'charging_profile' && e.button.reactive))
+            throw new Error('Percentage buttons enabled on a legacy backend');
+        Object.assign(ext._data.vendor, {charging_profile: 'balanced', charge_limit: 80, charge_resume: 75, charge_gate: 1});
+        ext._sync();
+        const chargeButtons = ext._buttons.filter(e => e.setting === 'charging_profile');
+        if (chargeButtons.map(e => e.button.label).join('/') !== '长效/平衡/工作站')
+            throw new Error('Battery preset labels must stay compact');
+        ext._updateDetails();
+        if (!ext._chargeState.label.text.startsWith('电量 ') || !ext._chargeState.label.text.endsWith(' mA'))
+            throw new Error('Battery details must preserve battery level, status and current');
+        if (ext._details.menu._getMenuItems().some(row => row.label?.text.includes('充电上限')))
+            throw new Error('Battery threshold row must be absent from details');
         if (ext._buttons.some(e => e.setting === 'fan_control' && e.value === 'boost')) throw new Error('Full speed option still exposed');
         if (!ext._buttons.some(e => e.setting === 'fan_control' && e.value === 'curve')) throw new Error('Curve option missing');
         // Auto-off changes hardware brightness, never the user's selected slider level.
@@ -76,12 +135,25 @@ export async function run() {
             if (got?.[0] !== entry.setting || got?.[1] !== entry.value) throw new Error('Wrong control handler');
         }
         const pointer = Clutter.get_default_backend().get_default_seat().create_virtual_device(Clutter.InputDeviceType.POINTER_DEVICE);
+        const chargeButton = chargeButtons.find(e => e.value === 'balanced').button;
+        const [chargeX, chargeY] = chargeButton.get_transformed_position();
+        const [chargeW, chargeH] = chargeButton.get_transformed_size();
+        pointer.notify_absolute_motion(GLib.get_monotonic_time(), chargeX + chargeW / 2, chargeY + chargeH / 2);
+        await Scripting.sleep(650);
+        if (ext._chargeTooltip?.text !== '上限80% · 75%恢复')
+            throw new Error('Battery hover tooltip must show only the preset thresholds');
+        if (!ext._chargeTooltip.mapped || ext._chargeTooltip.width <= 0 || ext._chargeTooltip.height <= 0)
+            throw new Error('Battery hover tooltip is not visible');
+        const tooltipStream = Gio.File.new_for_path(GLib.getenv('MECHREVO_UI_SCREENSHOT').replace('.png', '-battery-tooltip.png')).replace(null, false, Gio.FileCreateFlags.NONE, null);
+        await new Shell.Screenshot().screenshot(false, tooltipStream);
+        tooltipStream.close(null);
         const target = ext._buttons[2].button;
         const [x, y] = target.get_transformed_position();
         const [w, h] = target.get_transformed_size();
         calls = [];
         pointer.notify_absolute_motion(GLib.get_monotonic_time(), x + w / 2, y + h / 2);
         await Scripting.sleep(100);
+        if (ext._chargeTooltip) throw new Error('Battery tooltip remains after pointer leaves');
         pointer.notify_button(GLib.get_monotonic_time(), 1, Clutter.ButtonState.PRESSED);
         pointer.notify_button(GLib.get_monotonic_time(), 1, Clutter.ButtonState.RELEASED);
         await Scripting.sleep(100);
