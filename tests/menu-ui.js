@@ -164,9 +164,12 @@ export async function run() {
         await Scripting.sleep(300);
         if (ext._button.menu.actor.width !== collapsedWidth)
             throw new Error(`Keyboard submenu changes popup width: ${collapsedWidth} -> ${ext._button.menu.actor.width}`);
-        const expectedSliderWidth = ext._sliders[0].slider.width;
-        if (ext._sliders.some(e => e.slider.width !== expectedSliderWidth))
-            throw new Error('Slider track widths differ');
+        const keyboardSliders = ext._sliders.filter(e => e.setting.startsWith('keyboard'));
+        const expectedSliderWidth = keyboardSliders[0].slider.width;
+        if (keyboardSliders.some(e => e.slider.width !== expectedSliderWidth) || expectedSliderWidth <= 150)
+            throw new Error('Keyboard slider tracks must align and use the released label space');
+        if (keyboardSliders[0].slider.accessible_name !== '亮度' || keyboardSliders[1].slider.accessible_name !== '延迟')
+            throw new Error('Keyboard captions must remain compact');
         if (!ext._keyboardMenu.menu.isOpen) throw new Error('Keyboard submenu did not open');
         // Drag updates must not write until release; refresh cannot move a held slider.
         for (const e of ext._sliders) {

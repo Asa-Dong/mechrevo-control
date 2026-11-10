@@ -154,12 +154,13 @@ export default class MechrevoControl extends Extension {
 
     _slider(title, setting, minimum, maximum, channel = null, menu = this._button.menu) {
         const row = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false, activate: false});
-        row.add_child(new St.Label({text: title, opacity: SECONDARY_TEXT_OPACITY, style: 'min-width: 72px;', y_align: Clutter.ActorAlign.CENTER}));
+        row.add_child(new St.Label({text: title, opacity: SECONDARY_TEXT_OPACITY, style: `min-width: ${setting.startsWith('keyboard') ? 40 : 72}px;`, y_align: Clutter.ActorAlign.CENTER}));
         const slider = new Slider.Slider(0);
         slider.style = 'min-width: 150px;';
+        slider.x_expand = true;
         slider.accessible_name = title;
         row.add_child(slider);
-        // Every slider uses the same columns, including room for '300 秒'.
+        // Reserve a stable value column, including room for '300 秒'.
         const valueStyle = 'width: 4em; text-align: right;';
         const label = new St.Label({text: '-', opacity: SECONDARY_TEXT_OPACITY, style: valueStyle, y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.END});
         row.add_child(label);
@@ -226,8 +227,8 @@ export default class MechrevoControl extends Extension {
         this._button.menu.addMenuItem(this._keyboardMenu);
         const keyboardMenu = this._keyboardMenu.menu;
         keyboardMenu.actor.style = 'border-left-width: 0; border-right-width: 0;';
-        this._slider('键盘亮度', 'keyboard_brightness', 0, 4, null, keyboardMenu);
-        this._slider('关灯时间', 'keyboard-idle-seconds', 0, 300, null, keyboardMenu);
+        this._slider('亮度', 'keyboard_brightness', 0, 4, null, keyboardMenu);
+        this._slider('延迟', 'keyboard-idle-seconds', 0, 300, null, keyboardMenu);
         this._slider('红 R', 'keyboard_rgb', 0, 50, 0, keyboardMenu);
         this._slider('绿 G', 'keyboard_rgb', 0, 50, 1, keyboardMenu);
         this._slider('蓝 B', 'keyboard_rgb', 0, 50, 2, keyboardMenu);
