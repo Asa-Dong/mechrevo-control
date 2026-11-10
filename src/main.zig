@@ -107,7 +107,10 @@ pub fn main() !void {
     defer _ = c.sd_bus_flush_close_unref(bus);
     if (c.sd_bus_add_object(bus, null, path, handler, null) < 0) return error.ObjectRegistrationFailed;
     if (c.sd_bus_request_name(bus, name, 0) < 0) return error.BusNameUnavailable;
-    if (system_mode) try preferences.restore(a);
+    if (system_mode) preferences.restore(a) catch |err| {
+        // Keep D-Bus diagnostics and explicit recovery available after a hardware failure.
+        std.log.err("Cannot restore saved preferences: {s}", .{@errorName(err)});
+    };
     _ = c.signal(c.SIGTERM, stop);
     _ = c.signal(c.SIGINT, stop);
     while (!stopping.load(.acquire)) {

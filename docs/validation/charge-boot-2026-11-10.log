@@ -1,0 +1,50 @@
+Nov 10 19:34:38 dev-pc2 systemd[1]: mechrevo-control-system.service: Scheduled restart job, restart counter is at 48.
+Nov 10 19:34:39 dev-pc2 systemd[1]: Starting mechrevo-control-system.service - Mechrevo hardware control service...
+Nov 10 19:34:39 dev-pc2 systemd[1]: Started mechrevo-control-system.service - Mechrevo hardware control service.
+Nov 10 19:34:39 dev-pc2 mechrevo-control[7666]: error: InputOutput
+Nov 10 19:34:39 dev-pc2 systemd[1]: mechrevo-control-system.service: Main process exited, code=exited, status=1/FAILURE
+Nov 10 19:34:39 dev-pc2 systemd[1]: mechrevo-control-system.service: Failed with result 'exit-code'.
+Nov 10 19:34:42 dev-pc2 systemd[1]: mechrevo-control-system.service: Scheduled restart job, restart counter is at 49.
+Nov 10 19:34:42 dev-pc2 systemd[1]: Starting mechrevo-control-system.service - Mechrevo hardware control service...
+Nov 10 19:34:42 dev-pc2 systemd[1]: Started mechrevo-control-system.service - Mechrevo hardware control service.
+Nov 10 19:34:42 dev-pc2 mechrevo-control[7678]: error: InputOutput
+Nov 10 19:34:42 dev-pc2 systemd[1]: mechrevo-control-system.service: Main process exited, code=exited, status=1/FAILURE
+Nov 10 19:34:42 dev-pc2 systemd[1]: mechrevo-control-system.service: Failed with result 'exit-code'.
+Nov 10 19:34:45 dev-pc2 systemd[1]: mechrevo-control-system.service: Scheduled restart job, restart counter is at 50.
+Nov 10 19:34:45 dev-pc2 systemd[1]: Starting mechrevo-control-system.service - Mechrevo hardware control service...
+Nov 10 19:34:45 dev-pc2 systemd[1]: Started mechrevo-control-system.service - Mechrevo hardware control service.
+Nov 10 19:34:45 dev-pc2 mechrevo-control[7687]: error: InputOutput
+Nov 10 19:34:45 dev-pc2 systemd[1]: mechrevo-control-system.service: Main process exited, code=exited, status=1/FAILURE
+Nov 10 19:34:45 dev-pc2 systemd[1]: mechrevo-control-system.service: Failed with result 'exit-code'.
+Nov 10 19:34:48 dev-pc2 systemd[1]: mechrevo-control-system.service: Scheduled restart job, restart counter is at 51.
+Nov 10 19:34:48 dev-pc2 systemd[1]: Starting mechrevo-control-system.service - Mechrevo hardware control service...
+Nov 10 19:34:48 dev-pc2 systemd[1]: Started mechrevo-control-system.service - Mechrevo hardware control service.
+Nov 10 19:34:48 dev-pc2 mechrevo-control[7713]: error: InputOutput
+Nov 10 19:34:48 dev-pc2 systemd[1]: mechrevo-control-system.service: Main process exited, code=exited, status=1/FAILURE
+Nov 10 19:34:48 dev-pc2 systemd[1]: mechrevo-control-system.service: Failed with result 'exit-code'.
+Nov 10 19:34:49 dev-pc2 systemd[1]: Stopped mechrevo-control-system.service - Mechrevo hardware control service.
+Nov 10 19:34:55 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x0740 ECRR=0x1a WMI=0x1a
+Nov 10 19:34:55 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x0742 ECRR=0x22 WMI=0x22
+Nov 10 19:34:55 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x0770 ECRR=0xff WMI=0xff
+Nov 10 19:34:55 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x07c3 ECRR=0x07 WMI=0x07
+Nov 10 19:34:55 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x07a6 ECRR=0x01 WMI=0x01
+Nov 10 19:34:56 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x07b9 ECRR=0x3c WMI=0x3c
+Nov 10 19:34:56 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x07d0 ECRR=0x37 WMI=0x37
+Nov 10 19:34:56 dev-pc2 kernel: mechrevo_charge_probe: sample=0 reg=0x087f ECRR=0xff WMI=0x3c
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x0740 ECRR=0x1a WMI=0x1a
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x0742 ECRR=0x22 WMI=0x22
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x0770 ECRR=0xff WMI=0xff
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x07c3 ECRR=0x07 WMI=0x07
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x07a6 ECRR=0x01 WMI=0x01
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x07b9 ECRR=0x3c WMI=0x3c
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x07d0 ECRR=0x37 WMI=0x37
+Nov 10 19:34:57 dev-pc2 kernel: mechrevo_charge_probe: sample=1 reg=0x087f ECRR=0xff WMI=0x3c
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x0740 ECRR=0x1a WMI=0x1a
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x0742 ECRR=0x22 WMI=0x22
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x0770 ECRR=0xff WMI=0xff
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x07c3 ECRR=0x07 WMI=0x07
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x07a6 ECRR=0x01 WMI=0x01
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x07b9 ECRR=0x3c WMI=0x3c
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x07d0 ECRR=0x37 WMI=0x37
+Nov 10 19:34:59 dev-pc2 kernel: mechrevo_charge_probe: sample=2 reg=0x087f ECRR=0xff WMI=0x3c
+Nov 10 19:35:20 dev-pc2 kernel: mechrevo_charge_probe: unloaded (read-only)
