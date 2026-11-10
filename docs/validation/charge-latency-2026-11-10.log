@@ -1,0 +1,6 @@
+{"phase": "before", "mode": "balanced", "set_seconds": 3.019, "snapshot_seconds": 2.085, "actual": "balanced"}
+{"phase": "before", "mode": "stationary", "set_seconds": 3.016, "snapshot_seconds": 2.069, "actual": "stationary"}
+{"phase": "before", "mode": "high_capacity", "set_seconds": 4.223, "snapshot_seconds": 2.066, "actual": "high_capacity"}
+{"phase": "after 1.4.1", "mode": "balanced", "set_seconds": 1.19, "snapshot_seconds": 1.091, "actual": "balanced", "limit": 80, "resume": 75, "gate": 1}
+{"phase": "after 1.4.1", "mode": "stationary", "set_seconds": 1.849, "snapshot_seconds": 0.514, "actual": "stationary", "limit": 60, "resume": 55, "gate": 1}
+{"phase": "after 1.4.1", "mode": "high_capacity", "set_seconds": 2.523, "snapshot_seconds": 1.004, "actual": "high_capacity", "limit": 100, "resume": 0, "gate": 0}

@@ -6,7 +6,7 @@ const telemetry = @import("telemetry.zig");
 const Temp = struct { chip: []const u8, label: []const u8, celsius: f64 };
 const Fan = struct { chip: []const u8, label: []const u8, rpm: i64 };
 const Light = struct { id: []const u8, brightness: ?i64, maximum: ?i64 };
-const Battery = struct { id: []const u8, percent: ?i64, status: ?[]const u8, charge_start: ?i64, charge_end: ?i64 };
+const Battery = struct { id: []const u8, percent: ?i64, status: ?[]const u8, charge_start: ?i64, charge_end: ?i64, current_ua: ?i64 };
 const Vendor = struct {
     control: ?[]const u8,
     mode: ?[]const u8,
@@ -18,6 +18,10 @@ const Vendor = struct {
     keyboard_brightness: ?i64,
     keyboard_rgb: ?[]const u8,
     charging_profile: ?[]const u8,
+    charge_limit: ?i64,
+    charge_resume: ?i64,
+    charge_gate: ?i64,
+    charge_reached: ?i64,
     last_error: ?i64,
 };
 const State = struct {
@@ -46,6 +50,27 @@ fn read(a: A, dir: std.fs.Dir, path: []const u8) !?[]const u8 {
 fn num(a: A, dir: std.fs.Dir, path: []const u8) !?i64 {
     const text = try read(a, dir, path) orelse return null;
     return std.fmt.parseInt(i64, text, 10) catch null;
+}
+const Charge = struct {
+    profile: ?[]const u8 = null,
+    limit: ?i64 = null,
+    resume_at: ?i64 = null,
+    gate: ?i64 = null,
+    reached: ?i64 = null,
+};
+fn chargeState(a: A, dir: std.fs.Dir) !Charge {
+    if (try read(a, dir, "charge_state")) |line| {
+        var words = std.mem.tokenizeAny(u8, line, " \t");
+        const profile = words.next() orelse return .{};
+        if (!control.valid("charging_profile", profile) and !std.mem.eql(u8, profile, "unknown")) return .{};
+        var values: [4]i64 = undefined;
+        for (&values) |*v| v.* = std.fmt.parseInt(i64, words.next() orelse return .{}, 10) catch return .{};
+        if (words.next() != null or values[0] < 1 or values[0] > 100 or values[1] < 0 or values[1] > 100 or
+            values[2] < 0 or values[2] > 1 or values[3] < 0 or values[3] > 1) return .{};
+        return .{ .profile = profile, .limit = values[0], .resume_at = values[1], .gate = values[2], .reached = values[3] };
+    }
+    // Compatibility with drivers before the combined read-only snapshot.
+    return .{ .profile = try read(a, dir, "charging_profile"), .limit = try num(a, dir, "charge_limit"), .resume_at = try num(a, dir, "charge_resume"), .gate = try num(a, dir, "charge_gate"), .reached = try num(a, dir, "charge_reached") };
 }
 // All allocations belong to one request arena, reclaimed after JSON is sent.
 pub fn snapshot(a: A, root: []const u8) ![]const u8 {
@@ -99,7 +124,7 @@ pub fn snapshot(a: A, root: []const u8) ![]const u8 {
             defer bat.close();
             const kind = try read(a, bat, "type") orelse continue;
             if (!std.mem.eql(u8, kind, "Battery")) continue;
-            try batteries.append(.{ .id = try a.dupe(u8, entry.name), .percent = try num(a, bat, "capacity"), .status = try read(a, bat, "status"), .charge_start = try num(a, bat, "charge_control_start_threshold"), .charge_end = try num(a, bat, "charge_control_end_threshold") });
+            try batteries.append(.{ .id = try a.dupe(u8, entry.name), .percent = try num(a, bat, "capacity"), .status = try read(a, bat, "status"), .charge_start = try num(a, bat, "charge_control_start_threshold"), .charge_end = try num(a, bat, "charge_control_end_threshold"), .current_ua = try num(a, bat, "current_now") });
         }
     } else |_| {}
     var choices = std.ArrayList([]const u8).init(a);
@@ -109,6 +134,7 @@ pub fn snapshot(a: A, root: []const u8) ![]const u8 {
     if (try control.find(a, root)) |path| {
         var hw = try std.fs.cwd().openDir(path, .{});
         defer hw.close();
+        const charge = try chargeState(a, hw);
         vendor = .{
             .control = try read(a, hw, "control"),
             .mode = try read(a, hw, "mode"),
@@ -119,7 +145,11 @@ pub fn snapshot(a: A, root: []const u8) ![]const u8 {
             .fan2_percent = try num(a, hw, "fan2_percent"),
             .keyboard_brightness = try num(a, hw, "keyboard_brightness"),
             .keyboard_rgb = try read(a, hw, "keyboard_rgb"),
-            .charging_profile = try read(a, hw, "charging_profile"),
+            .charging_profile = charge.profile,
+            .charge_limit = charge.limit,
+            .charge_resume = charge.resume_at,
+            .charge_gate = charge.gate,
+            .charge_reached = charge.reached,
             .last_error = try num(a, hw, "last_error"),
         };
     }
@@ -153,6 +183,7 @@ test "invalid sensor, stopped fan, keyboard filtering and missing threshold" {
         .{ "class/leds/input0::capslock/brightness", "1" },
         .{ "class/leds/vendor::kbd_backlight/brightness", "2" },
         .{ "class/power_supply/BAT0/type", "Battery" },
+        .{ "class/power_supply/BAT0/current_now", "1200000" },
     };
     inline for (entries) |pair| {
         try tmp.dir.makePath(std.fs.path.dirname(pair[0]).?);
@@ -165,6 +196,7 @@ test "invalid sensor, stopped fan, keyboard filtering and missing threshold" {
     try std.testing.expectEqual(@as(i64, 0), obj.get("fans").?.array.items[0].object.get("rpm").?.integer);
     try std.testing.expectEqual(@as(usize, 1), obj.get("keyboard_lights").?.array.items.len);
     try std.testing.expect(obj.get("batteries").?.array.items[0].object.get("charge_end").? == .null);
+    try std.testing.expectEqual(@as(i64, 1200000), obj.get("batteries").?.array.items[0].object.get("current_ua").?.integer);
 }
 
 test "vendor discovery preserves actual settings and control state" {
@@ -180,6 +212,10 @@ test "vendor discovery preserves actual settings and control state" {
         .{ "class/hwmon/hwmon9/fan1_input", "1980" },
         .{ "class/hwmon/hwmon9/keyboard_brightness", "4" },
         .{ "class/hwmon/hwmon9/charging_profile", "stationary\n" },
+        .{ "class/hwmon/hwmon9/charge_limit", "60\n" },
+        .{ "class/hwmon/hwmon9/charge_resume", "55\n" },
+        .{ "class/hwmon/hwmon9/charge_gate", "1\n" },
+        .{ "class/hwmon/hwmon9/charge_reached", "0\n" },
     };
     inline for (entries) |pair| {
         try tmp.dir.makePath(std.fs.path.dirname(pair[0]).?);
@@ -192,5 +228,32 @@ test "vendor discovery preserves actual settings and control state" {
     try std.testing.expectEqualStrings("firmware", vendor.get("control").?.string);
     try std.testing.expectEqualStrings("turbo", vendor.get("mode").?.string);
     try std.testing.expectEqualStrings("stationary", vendor.get("charging_profile").?.string);
+    try std.testing.expectEqual(@as(i64, 60), vendor.get("charge_limit").?.integer);
+    try std.testing.expectEqual(@as(i64, 55), vendor.get("charge_resume").?.integer);
+    try std.testing.expectEqual(@as(i64, 1), vendor.get("charge_gate").?.integer);
     try std.testing.expectEqual(@as(i64, 1980), obj.get("fans").?.array.items[0].object.get("rpm").?.integer);
+}
+
+test "combined charging snapshot is coherent and rejects malformed data" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    try tmp.dir.writeFile(.{ .sub_path = "charging_profile", .data = "balanced\n" });
+    try tmp.dir.writeFile(.{ .sub_path = "charge_limit", .data = "80\n" });
+    try tmp.dir.writeFile(.{ .sub_path = "charge_state", .data = "stationary 60 55 1 0\n" });
+    const charge = try chargeState(a, tmp.dir);
+    try std.testing.expectEqualStrings("stationary", charge.profile.?);
+    try std.testing.expectEqual(@as(i64, 60), charge.limit.?);
+    try std.testing.expectEqual(@as(i64, 55), charge.resume_at.?);
+    for ([_][]const u8{ "stationary 60 55 1", "balanced 80 75 2 0", "balanced bad 75 1 0", "balanced 80 75 1 0 extra" }) |bad| {
+        try tmp.dir.writeFile(.{ .sub_path = "charge_state", .data = bad });
+        const invalid = try chargeState(a, tmp.dir);
+        try std.testing.expect(invalid.profile == null and invalid.limit == null);
+    }
+    try tmp.dir.deleteFile("charge_state");
+    const legacy = try chargeState(a, tmp.dir);
+    try std.testing.expectEqualStrings("balanced", legacy.profile.?);
+    try std.testing.expectEqual(@as(i64, 80), legacy.limit.?);
 }

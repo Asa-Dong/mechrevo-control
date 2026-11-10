@@ -6,6 +6,8 @@
 
 `lifecycle-unit.py` 将实际驱动回调与模拟 EC 编译成可执行程序，验证生命周期零写入和遗留状态重新接管。它不能替代实际睡眠/断电验证。
 
+`charge-unit.py` 编译实际充电事务函数，以模拟固件更新与 I/O 故障验证 80/75、60/55、取消、读回、回滚及固定机型边界。真实充电跨阈值和恢复点行为仍需电池循环验证；设置及服务/驱动重载实测见 [限充记录](../docs/validation/2026-11-10-charge-limit.md)。
+
 ## UI（隔离桌面，写入 stub）
 
 `sh scripts/test-ui.sh` 启动独立 headless GNOME Shell，执行 `menu-ui.js`，检查按钮、滑条、数据缺失、通道映射及布局。日志和截图默认写入 `dist/ui/`。真实硬件写入被记录器替代，不替换用户桌面的 Shell。

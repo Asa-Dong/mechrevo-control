@@ -12,6 +12,7 @@ for script in scripts/*.sh tests/*.sh; do sh -n "$script"; done
 "$zig" build -Doptimize=ReleaseSafe
 ./zig-out/bin/mechrevo-control --version
 python3 tests/lifecycle-unit.py
+python3 tests/charge-unit.py
 glib-compile-schemas --strict extension/schemas
 gjs -m tests/keyboard-idle.js
 sh scripts/test-service.sh

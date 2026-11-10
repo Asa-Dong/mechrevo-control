@@ -1,5 +1,7 @@
 # 电池配置切换验证
 
+后续结论（2026-11-10）：用户在约 65% 时开启工作站模式，仍充到系统显示 100%，未实现目标百分比限充。独立上限协议的本机测试发现，临时平台门控恢复后不会保持激活，即使存储上限读回正确。最新证据和 100 / 80 / 60 的验收要求见 [限充调查](2026-11-10-charge-limit.md)。以下早期记录仅证明三档配置寄存器的切换。
+
 ## 实测结果
 
 机器接交流电，电池 100% / Full。使用精确 DMI 限定、固定寄存器的临时模块；未安装完整 TUXEDO 驱动。
@@ -39,3 +41,25 @@ stationary 表示长期插电使用配置，不是禁用充电。TUXEDO 对其�
 - https://docs.kernel.org/next/admin-guide/laptops/uniwill-laptop.html
 - https://raw.githubusercontent.com/torvalds/linux/master/drivers/platform/x86/uniwill/uniwill-acpi.c
 - https://www.tuxedocomputers.com/en/Battery-charging-profiles-inside-the-TUXEDO-Control-Center.tuxedo
+
+## 2026-11-10补充：百分比限充参考
+
+阅读 [Leo-stro/mechrevo-charge-limit](https://github.com/Leo-stro/mechrevo-charge-limit) 的 README、[逆向记录](https://github.com/Leo-stro/mechrevo-charge-limit/blob/75a8061472a2b9ca07b49f35601c21ba4c735c1f/docs/FINDINGS.md)及主程序。调查时 main HEAD 为 `75a8061472a2b9ca07b49f35601c21ba4c735c1f`。以下是参考项目的协议说明与作者实测，不是本机测试结果。
+
+| 寄存器 | 参考项目中的作用 | 与当前实现的关系 |
+| --- | --- | --- |
+| `0x07A6` bits5:4 | 长效 / 均衡 / 工作站三档 | 当前驱动使用此接口；读回成功不证明某个百分比停充 |
+| `0x07B9` bits6:0、bit7 | 百分比上限、已达上限标志 | 当前驱动未使用；上限值需要屏蔽 bit7 后解码 |
+| `0x07C3`、`0x0770` | 平台值、ROM ID 首字节；值为 4/5 时满足其固件门控 | 当前未探测；参考程序只临时修改前者，不写 ROM ID |
+| `0x087F` | 存储上限 | 作者经 WMI 邮箱读取验证；直接写入未验证 |
+| `0x0742` bit2 | 参考机型的限充控制环路激活标志 | 需等固件更新；不能独自证明真实停充 |
+
+参考程序先写 `0x07B9`，再将 `0x07C3` 临时设为 4，保持 2.5 秒并恢复原值，等待 7 秒后检查控制环路及上限读回。按作者对固件的逆向，临时门控使固件把实时上限保存到 `0x087F`；有效存储值可继续维持控制环路。取消时写入上限 0，并再次触发保存；界面选择 100% 也调用取消逻辑。仅关闭门控而留下旧上限，作者曾观察到无法恢复充电。
+
+作者在无界 15X（WUJIE15XA，BIOS N.1.14MRO50）上验证了百分比停充、取消后恢复充电，以及重启和关机拔电后的保持。其记录末尾明确将蛟龙等其他机型列为未验证；电池完全耗尽后的保持也未实测。这里的保持不能等同于已经证明写入 BIOS Flash。
+
+本机已有 `INOU.ECRR/ECRW` 和 WMI 邮箱访问实现，且 `0x0740=0x1A` 与参考机相同。这说明存在可借鉴的访问路径，不能证明固件充电逻辑相同。现有日志没有 `0x0742`、`0x0770`、`0x07C3`、`0x07B9`、`0x087F` 的完整快照，因此目前也无法判断本机是否只是缺少门控条件。
+
+后续验证应先只读采集上述寄存器，并区分现有 ECRR 读取与 WMI 邮箱读取的地址可见性，特别是 `0x087F`；参考项目的 Windows H2RAM 通道在该地址读到 `0xFF`，不能把它直接解释为存储值。读到相似数值仍不足以确认兼容。确认本机固件语义后，受控写入验证还需覆盖平台值恢复、取消时清除上限及存储值、实际充电电流、达到上限停充和低于上限后的恢复行为。
+
+本次仅做源码及文档对照，没有加载诊断模块或写入 EC，也没有将三档按钮改成未经本机验证的 100% / 80% / 60%。上游 Linux 仍区分充电配置与百分比限充，并对阈值接口采用机型限制，参见 [内核说明](https://docs.kernel.org/next/admin-guide/laptops/uniwill-laptop.html#battery-charging-control)。

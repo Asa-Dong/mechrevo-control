@@ -24,6 +24,9 @@
 #define DIRTY_CURVE BIT(5)
 #define DIRTY_RESPONSE BIT(6)
 #define DIRTY_GATE BIT(7)
+struct mr_charge {
+	unsigned int limit, resume, stored, platform, profile, gate, reached;
+};
 struct mr {
 	struct mutex lock;
 	acpi_handle ec;
@@ -36,6 +39,8 @@ struct mr {
 	unsigned int dirty, mode, light, rgb[3], charge, response;
 	unsigned long last_key;
 	int last_error;
+	bool charge_saved;
+	struct mr_charge saved_charge;
 };
 static int rd(struct mr *d, u16 reg, unsigned int *v)
 {
@@ -137,6 +142,117 @@ static int mask(struct mr *d, u16 reg, unsigned int bits, unsigned int value)
 	if (rd(d, reg, &v) || wr(d, reg, (v & ~bits) | (value & bits)) || rd(d, reg, &v))
 		return -EIO;
 	return (v & bits) == (value & bits) ? 0 : -EIO;
+}
+/* X6xR55xK N.1.12MRO13 requires platform 4 for the whole limited period.
+ * Protocol investigation: docs/validation/2026-11-10-charge-limit.md.
+ * Only fixed 100/80/60 presets; ROM ID is NEVER written. The stored limit
+ * must be read through WMI: ECRR returns a blind 0xff at 087f.
+ */
+static int charge_read(struct mr *d, struct mr_charge *s)
+{
+	unsigned int live, gate, rom;
+	if (rd(d, 0x07b9, &live) || rd(d, 0x07d0, &s->resume) ||
+	    fan_wmi(0x087f, &s->stored, false) || rd(d, 0x07c3, &s->platform) ||
+	    rd(d, 0x07a6, &s->profile) || rd(d, 0x0742, &gate) || rd(d, 0x0770, &rom))
+		return -EIO;
+	if (rom != 0xff || (s->platform != 7 && s->platform != 4))
+		return -EOPNOTSUPP;
+	s->limit = live & 0x7f;
+	s->stored &= 0x7f;
+	s->profile &= 0x30;
+	s->gate = !!(gate & 4);
+	s->reached = !!(live & 0x80);
+	return 0;
+}
+static bool charge_valid(const struct mr_charge *s)
+{
+	if (!s->limit)
+		return !s->stored && !s->resume && s->platform == 7 && !s->gate;
+	return (s->limit == 60 || s->limit == 80) && s->stored == s->limit &&
+	       s->resume == s->limit - 5 && s->platform == 4 && s->gate;
+}
+/* A real reboot retains both thresholds and storage but restores native
+ * platform 7 with the gate off. Only this exact known tuple is recoverable.
+ * It is not reported as an active charging policy. */
+static bool charge_dormant(const struct mr_charge *s)
+{
+	return (s->limit == 60 || s->limit == 80) && s->stored == s->limit &&
+	       s->resume == s->limit - 5 && s->platform == 7 && !s->gate && !s->profile;
+}
+/* lock held. Keep platform 4 while limiting; cancellation clears and stores
+ * zero BEFORE returning to platform 7. Rollback preserves the saved tuple.
+ * Never guess a different platform's original ID.
+ */
+static int charge_program(struct mr *d, const struct mr_charge *target)
+{
+	struct mr_charge actual;
+	unsigned long deadline;
+	bool matches;
+	if (mask(d, 0x07a6, 0x30, target->profile) || wr(d, 0x07d0, target->resume) ||
+	    wr(d, 0x07b9, target->limit) || wr(d, 0x07c3, 4))
+		return -EIO;
+	deadline = jiffies + msecs_to_jiffies(7000);
+	do {
+		if (charge_read(d, &actual))
+			return -EIO;
+		matches = actual.limit == target->limit && actual.stored == target->limit &&
+			  actual.resume == target->resume && actual.profile == target->profile;
+		/* Confirm storage before releasing the gate, including rollback to
+		 * a dormant reboot snapshot. Cancellation always stores zero. */
+		if (matches && target->platform == 7 && actual.platform == 4) {
+			if (wr(d, 0x07c3, 7))
+				return -EIO;
+			continue;
+		}
+		if (matches && actual.platform == target->platform &&
+		    (charge_valid(&actual) || charge_dormant(&actual)))
+			return 0;
+		msleep(100);
+	} while (time_before(jiffies, deadline));
+	return -EIO;
+}
+static int charge_set(struct mr *d, unsigned int limit)
+{
+	struct mr_charge before,
+	    target = {.limit = limit, .resume = limit ? limit - 5 : 0, .platform = limit ? 4 : 7};
+	bool first = !d->charge_saved;
+	int ret;
+	if (!dmi_match(DMI_BIOS_VERSION, "N.1.12MRO13"))
+		return -EOPNOTSUPP;
+	if (limit != 0 && limit != 60 && limit != 80)
+		return -EINVAL;
+	ret = charge_read(d, &before);
+	if (ret)
+		return ret;
+	if (!charge_valid(&before) && !charge_dormant(&before))
+		return -EOPNOTSUPP;
+	if (charge_valid(&before) && before.limit == target.limit && !before.profile)
+		return 0;
+	if (first) {
+		d->saved_charge = before;
+		d->charge_saved = true;
+	}
+	d->dirty |= DIRTY_CHARGE;
+	ret = charge_program(d, &target);
+	if (ret) {
+		if (charge_program(d, &before)) {
+			dev_err(d->dev, "charging rollback failed; explicit restore required\n");
+		} else if (first) {
+			d->dirty &= ~DIRTY_CHARGE;
+			d->charge_saved = false;
+		}
+	}
+	return ret;
+}
+static int charge_restore(struct mr *d)
+{
+	int ret;
+	if (!d->charge_saved)
+		return 0;
+	ret = charge_program(d, &d->saved_charge);
+	if (!ret)
+		d->charge_saved = false;
+	return ret;
 }
 static int brightness(struct mr *d, unsigned int level)
 {
@@ -299,7 +415,7 @@ static int restore(struct mr *d)
 				ret = curve_byte(d, 0x0787, d->response);
 				break;
 			case DIRTY_CHARGE:
-				ret = mask(d, 0x07a6, 0x30, d->charge);
+				ret = charge_restore(d);
 				break;
 			default:
 				ret = mask(d, 0x0741, 1, 0);
@@ -395,6 +511,7 @@ static int acquire(struct mr *d)
 	d->charge = v & 0x30;
 	if (rd(d, 0x0787, &d->response))
 		return -EIO;
+	d->charge_saved = false;
 	d->dirty = DIRTY_GATE;
 	ret = mask(d, 0x0741, 1, 1);
 	if (ret) {
@@ -543,14 +660,40 @@ static ssize_t setting_show(struct device *dev, struct device_attribute *attr, c
 		ret = rd(d, 0x078c, &v);
 		if (!ret)
 			ret = sysfs_emit(buf, "%u\n", v >> 5);
-	} else if (!strcmp(attr->attr.name, "charging_profile")) {
-		ret = rd(d, 0x07a6, &v);
-		if (!ret)
-			ret = sysfs_emit(buf, "%s\n",
-					 (v & 0x30) == 0      ? "high_capacity"
-					 : (v & 0x30) == 0x10 ? "balanced"
-					 : (v & 0x30) == 0x20 ? "stationary"
-							      : "unknown");
+	} else if (!strcmp(attr->attr.name, "charging_profile") ||
+		   !strcmp(attr->attr.name, "charge_state")) {
+		struct mr_charge s;
+		const char *name;
+		ret = charge_read(d, &s);
+		if (!ret) {
+			name = !charge_valid(&s) || s.profile ? "unknown"
+			       : s.limit == 80		      ? "balanced"
+			       : s.limit == 60		      ? "stationary"
+							      : "high_capacity";
+			if (!strcmp(attr->attr.name, "charge_state"))
+				ret = sysfs_emit(buf, "%s %u %u %u %u\n", name,
+						 s.limit ? s.limit : 100, s.resume, s.gate,
+						 s.reached);
+			else
+				ret = sysfs_emit(buf, "%s\n", name);
+		}
+	} else if (!strcmp(attr->attr.name, "charge_limit") ||
+		   !strcmp(attr->attr.name, "charge_resume") ||
+		   !strcmp(attr->attr.name, "charge_gate") ||
+		   !strcmp(attr->attr.name, "charge_reached")) {
+		struct mr_charge s;
+		ret = charge_read(d, &s);
+		if (!ret) {
+			if (!strcmp(attr->attr.name, "charge_limit"))
+				v = s.limit ? s.limit : 100;
+			else if (!strcmp(attr->attr.name, "charge_resume"))
+				v = s.resume;
+			else if (!strcmp(attr->attr.name, "charge_gate"))
+				v = s.gate;
+			else
+				v = s.reached;
+			ret = sysfs_emit(buf, "%u\n", v);
+		}
 	} else {
 		for (i = 0; i < 3; i++) {
 			ret = rd(d, 0x0769 + i, &rgb[i]);
@@ -617,9 +760,9 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 		if (sysfs_streq(buf, "high_capacity"))
 			v = 0;
 		else if (sysfs_streq(buf, "balanced"))
-			v = 0x10;
+			v = 80;
 		else if (sysfs_streq(buf, "stationary"))
-			v = 0x20;
+			v = 60;
 		else
 			return -EINVAL;
 		kind = DIRTY_CHARGE;
@@ -658,6 +801,8 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 			if (!ret)
 				ret = mask(d, 0x0751, 0x40, v == 2 ? 0x40 : 0);
 		}
+	} else if (kind == DIRTY_CHARGE) {
+		ret = charge_set(d, v);
 	} else {
 		d->dirty |= kind;
 		if (kind == DIRTY_MODE) {
@@ -668,8 +813,6 @@ static ssize_t setting_store(struct device *dev, struct device_attribute *attr, 
 			ret = curve_byte(d, 0x0787, v);
 		else if (kind == DIRTY_LIGHT)
 			ret = brightness(d, v);
-		else if (kind == DIRTY_CHARGE)
-			ret = mask(d, 0x07a6, 0x30, v);
 		else
 			ret = color(d, rgb);
 	}
@@ -693,18 +836,38 @@ SETTING(fan2_percent);
 SETTING(keyboard_brightness);
 SETTING(keyboard_rgb);
 SETTING(charging_profile);
+static struct device_attribute dev_attr_charge_state =
+    __ATTR(charge_state, 0444, setting_show, NULL);
+static struct device_attribute dev_attr_charge_limit =
+    __ATTR(charge_limit, 0444, setting_show, NULL);
+static struct device_attribute dev_attr_charge_resume =
+    __ATTR(charge_resume, 0444, setting_show, NULL);
+static struct device_attribute dev_attr_charge_gate = __ATTR(charge_gate, 0444, setting_show, NULL);
+static struct device_attribute dev_attr_charge_reached =
+    __ATTR(charge_reached, 0444, setting_show, NULL);
 static ssize_t last_error_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct mr *d = dev_get_drvdata(dev);
 	return sysfs_emit(buf, "%d\n", READ_ONCE(d->last_error));
 }
 static DEVICE_ATTR_RO(last_error);
-static struct attribute *attrs[] = {&dev_attr_fan_curve.attr,	 &dev_attr_fan_response_ms.attr,
-				    &dev_attr_fan_control.attr,	 &dev_attr_fan1_percent.attr,
-				    &dev_attr_fan2_percent.attr, &dev_attr_control.attr,
-				    &dev_attr_mode.attr,	 &dev_attr_keyboard_brightness.attr,
-				    &dev_attr_keyboard_rgb.attr, &dev_attr_charging_profile.attr,
-				    &dev_attr_last_error.attr,	 NULL};
+static struct attribute *attrs[] = {&dev_attr_fan_curve.attr,
+				    &dev_attr_fan_response_ms.attr,
+				    &dev_attr_fan_control.attr,
+				    &dev_attr_fan1_percent.attr,
+				    &dev_attr_fan2_percent.attr,
+				    &dev_attr_control.attr,
+				    &dev_attr_mode.attr,
+				    &dev_attr_keyboard_brightness.attr,
+				    &dev_attr_keyboard_rgb.attr,
+				    &dev_attr_charging_profile.attr,
+				    &dev_attr_charge_state.attr,
+				    &dev_attr_charge_limit.attr,
+				    &dev_attr_charge_resume.attr,
+				    &dev_attr_charge_gate.attr,
+				    &dev_attr_charge_reached.attr,
+				    &dev_attr_last_error.attr,
+				    NULL};
 static const struct attribute_group group = {.attrs = attrs};
 static const struct attribute_group *groups[] = {&group, NULL};
 

@@ -36,7 +36,7 @@ struct mr {
     int lock, fan_work;
     struct notifier_block reboot;
     struct device *dev, *hwmon;
-    bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy;
+    bool active, suspended, removing, manual_fans, curve_fans, curve_valid, curve_legacy, charge_saved;
     unsigned int fan_target[2], curve_points[10], dirty, mode, light, rgb[3], charge, response;
     int last_error;
 };
