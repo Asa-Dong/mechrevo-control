@@ -1,0 +1,321 @@
+{
+  "investigation": "keyboard lighting topology",
+  "time": "2026-11-10T20:24:34+08:00",
+  "scope": "Read-only enumeration and firmware disassembly; no EC/HID writes; product service and module kept running",
+  "machine": {
+    "sys_vendor": "MECHREVO",
+    "product_name": "JIAOLONG Series",
+    "board_name": "JIAOLONG Series-X6xR55xK",
+    "bios_version": "N.1.12MRO13"
+  },
+  "usb": [
+    {
+      "idVendor": "05e3",
+      "idProduct": "0610",
+      "authorized": "1",
+      "product": "USB2.1 Hub"
+    },
+    {
+      "idVendor": "1532",
+      "idProduct": "0094",
+      "authorized": "1",
+      "product": "Orochi V2"
+    },
+    {
+      "idVendor": "05e3",
+      "idProduct": "0620",
+      "authorized": "1",
+      "product": "USB3.2 Hub"
+    },
+    {
+      "idVendor": "05e3",
+      "idProduct": "0608",
+      "authorized": "1",
+      "product": null
+    },
+    {
+      "idVendor": "13d3",
+      "idProduct": "3585",
+      "authorized": "1",
+      "product": "Wireless_Device"
+    },
+    {
+      "idVendor": "2b7e",
+      "idProduct": "b651",
+      "authorized": "1",
+      "product": "HD Webcam"
+    },
+    {
+      "idVendor": "1d6b",
+      "idProduct": "0002",
+      "authorized": "1",
+      "product": "xHCI Host Controller"
+    },
+    {
+      "idVendor": "1d6b",
+      "idProduct": "0003",
+      "authorized": "1",
+      "product": "xHCI Host Controller"
+    },
+    {
+      "idVendor": "1d6b",
+      "idProduct": "0002",
+      "authorized": "1",
+      "product": "xHCI Host Controller"
+    },
+    {
+      "idVendor": "1d6b",
+      "idProduct": "0003",
+      "authorized": "1",
+      "product": "xHCI Host Controller"
+    },
+    {
+      "idVendor": "1d6b",
+      "idProduct": "0002",
+      "authorized": "1",
+      "product": "xHCI Host Controller"
+    }
+  ],
+  "hid": [
+    {
+      "HID_ID": "0003:00001532:00000094",
+      "HID_NAME": "Razer Orochi V2",
+      "DRIVER": "hid-generic"
+    },
+    {
+      "HID_ID": "0003:00001532:00000094",
+      "HID_NAME": "Razer Orochi V2",
+      "DRIVER": "hid-generic"
+    },
+    {
+      "HID_ID": "0003:00001532:00000094",
+      "HID_NAME": "Razer Orochi V2",
+      "DRIVER": "hid-generic"
+    },
+    {
+      "HID_ID": "0003:00001532:00000094",
+      "HID_NAME": "Razer Orochi V2",
+      "DRIVER": "hid-generic"
+    },
+    {
+      "HID_ID": "0003:00001532:00000094",
+      "HID_NAME": "Razer Orochi V2",
+      "DRIVER": "hid-generic"
+    },
+    {
+      "HID_ID": "0018:0000093A:00000255",
+      "HID_NAME": "UNIW0001:00 093A:0255",
+      "DRIVER": "hid-multitouch"
+    }
+  ],
+  "i2c": [
+    {
+      "node": "1-0050",
+      "name": "spd5118"
+    },
+    {
+      "node": "1-0051",
+      "name": "spd5118"
+    },
+    {
+      "node": "i2c-0",
+      "name": "Synopsys DesignWare I2C adapter"
+    },
+    {
+      "node": "i2c-1",
+      "name": "SMBus PIIX4 adapter port 0 at 0b00"
+    },
+    {
+      "node": "i2c-10",
+      "name": "NVIDIA i2c adapter 1 at 1:00.0"
+    },
+    {
+      "node": "i2c-11",
+      "name": "NVIDIA i2c adapter 4 at 1:00.0"
+    },
+    {
+      "node": "i2c-12",
+      "name": "NVIDIA i2c adapter 5 at 1:00.0"
+    },
+    {
+      "node": "i2c-13",
+      "name": "NVIDIA i2c adapter 7 at 1:00.0"
+    },
+    {
+      "node": "i2c-2",
+      "name": "SMBus PIIX4 adapter port 2 at 0b00"
+    },
+    {
+      "node": "i2c-3",
+      "name": "SMBus PIIX4 adapter port 1 at 0b20"
+    },
+    {
+      "node": "i2c-4",
+      "name": "AMDGPU DM i2c hw bus 0"
+    },
+    {
+      "node": "i2c-5",
+      "name": "AMDGPU DM i2c hw bus 1"
+    },
+    {
+      "node": "i2c-6",
+      "name": "AMDGPU DM i2c hw bus 2"
+    },
+    {
+      "node": "i2c-7",
+      "name": "AMDGPU DM aux hw bus 0"
+    },
+    {
+      "node": "i2c-8",
+      "name": "AMDGPU DM aux hw bus 1"
+    },
+    {
+      "node": "i2c-9",
+      "name": "AMDGPU DM aux hw bus 2"
+    },
+    {
+      "node": "i2c-UNIW0001:00",
+      "name": "UNIW0001:00"
+    }
+  ],
+  "acpi": {
+    "tables": [
+      {
+        "table": "DSDT",
+        "sha256": "d450a53bcd9deea710a567b2fc45924758dfae2112a0c8c0c8373bbd83470bcc",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT1",
+        "sha256": "6aba9167ec2d6e9ee092f7eee86e625df1ad56f1fee37fa02d118ac4cb30f5d9",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT10",
+        "sha256": "58bf1ac5e23b7e10f845d9630a2a038e01f5806622e5a8f945bf58477984861f",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT11",
+        "sha256": "42ed74f5e4354fe6dc897e1f79aafd654b11abdfbeceae16d51c2e38e5592978",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT12",
+        "sha256": "627b542fe4ffda42d20498da4a52ec06553c96aaf5c95109e6832bc118966288",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT13",
+        "sha256": "5fec038a2907b5ddc880217f0a592b7de96e1f96f77e326e4fb1fc50b709c28c",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT14",
+        "sha256": "1342ddf431d8be96c1527e560d4645c46bdab1e9db761ad4a937144ae2799862",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT15",
+        "sha256": "384f1d89d38a6aab54ec4c0aed9608562bf59d345ab3fb05c490b92dec6b86ed",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT16",
+        "sha256": "913acb43377646948fc8944bfadd0dd246db90bde62c7c7908219a18650f5b43",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT17",
+        "sha256": "0472cf8782780ccedcd4c2cf0b64a290f8f1f6dfb14f72cedbbd33654000c0aa",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT18",
+        "sha256": "f20674d25fab9e9d0ef3711297b3c56ccdfe401209c0d095ec5d9dfe25116947",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT19",
+        "sha256": "8e71805082e9c402319a6f74e54ce3b1a05e1f6f8bebdbdf66a23a7c2bd3409a",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT2",
+        "sha256": "7b07367ef72a92f9ec60bc836c1cdc7a8a7f32b60ad1041186483927519e3a39",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT20",
+        "sha256": "2042877742be87f446ee8ae5a1cc52514e2c9549b1dce1a1f39c1a26e0f28f42",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT21",
+        "sha256": "72b0c6f722b08421ddca68ada4ecd0c58624db55210c74622ed5090b65063173",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT22",
+        "sha256": "7c21578178bb122a7df8a43a3a38f5ceb1e5563e01209f05b596c50591e613d4",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT23",
+        "sha256": "8102464cb9bb2f97503c983ff61af88915575e4ce9a6bcd2edbfa69476f3237f",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT3",
+        "sha256": "f4f83c41bae6dff20aeda67d6fa19b55855a556a8d8d3edab8d8e93144dd3397",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT4",
+        "sha256": "26036e02214851564e3cd88df6680115fbdf2cd751e7de6760c3ee0780f2b7f2",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT5",
+        "sha256": "b205fd1f4dd14d40fb9769bcfe129c1ef65fbca8649df85567532cc4eaf1cbd5",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT6",
+        "sha256": "db9d990115c34235fb805f9721aea210069c9399556477904601adcc9c722db3",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT7",
+        "sha256": "7cae11d35f654c2480d9c8e62deb47c63058ea540082f541e2bf856b5c15e3f0",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT8",
+        "sha256": "6d0c72ec65855b8a11d6990a71c55c79a4f899d8d6a8b6dfcfe18d78fd385ebf",
+        "individual_disassembly": true
+      },
+      {
+        "table": "SSDT9",
+        "sha256": "3b3ef6b87df3292679e18293cd464626dad937aa50b6445f679f6569a454baed",
+        "individual_disassembly": true
+      }
+    ],
+    "inspection": "DSDT PS2K MSFT0001/PNP0303 ports60/64; I2CB.TPAD UNIW0001/PNP0C50 confirmed as 093A:0255 touchpad. INOU exposes generic EC ECRR/ECRW, WMI WMBC OEMG mailbox. No identified per-key lighting method. Opaque firmware mailbox semantics are not fully decoded by static AML inspection."
+  },
+  "evidence": [
+    "All enumerated USB devices authorized. No 048d:600b (OpenRevo ITE per-key) or 048d:ce00 (4-zone). All six HID nodes attributed to touchpad or Razer mouse.",
+    "Bound mechrevo hwmon probe requires EC0766 bit2=1. TUXEDO uniwill_interfaces.h names this BIT_1_ZONE_RGB_KB; uniwill_leds.h classifies it as 1_ZONE_RGB. This records a successful probe condition, not a newly sampled full byte.",
+    "OpenRevo b7d2b526e60cd04965eadab21e606bdb1e1aa56e builtin model JIAOLONG/JIAOLONG Series project26 keyboard_type=SingleZone_RGB. This is series-level corroboration, not exact board BOM proof.",
+    "Existing tested product color interface uses only RGB0769/076a/076b and0767 apply bit; no per-key addressing.",
+    "Normal PS/2 input path alone cannot determine lighting topology. Missing USB device alone cannot prove physical absence; combined EC capability and model classification give stronger evidence."
+  ],
+  "sources": [
+    "https://github.com/faintonce/open-revo/blob/b7d2b526e60cd04965eadab21e606bdb1e1aa56e/src-tauri/resources/builtin_models.json",
+    "https://github.com/faintonce/open-revo/blob/b7d2b526e60cd04965eadab21e606bdb1e1aa56e/src-tauri/src/system/model_engine.rs",
+    "https://github.com/tuxedocomputers/tuxedo-drivers/blob/main/src/uniwill_interfaces.h",
+    "https://github.com/tuxedocomputers/tuxedo-drivers/blob/main/src/uniwill_leds.h"
+  ],
+  "conclusion": "High confidence current platform exposes single-zone RGB, no supported per-key path found. Spatial per-key wave/ripple/reactive effects cannot be implemented with verified interfaces. Whole-board color cycling/breathing/key-triggered flashing may be possible; not validated in this read-only investigation. Unknown hidden firmware paths or alternate hardware variants are not exhaustively disproven.",
+  "product_hwmon_bound": true
+}
